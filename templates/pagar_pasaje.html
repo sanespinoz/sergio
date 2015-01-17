@@ -1,0 +1,732 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+    <head>
+        <title>Pago de pasaje</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+<link type='text/css' href='css/osx.css' rel='stylesheet' media='screen' />
+<script type="text/javascript" src="./js/jquery-1.3.2.js" ></script>            
+<script type="text/javascript" src="./js/propias.js" ></script>            
+<script type="text/javascript">                   
+
+    $(document).ready(function(){   
+                //---------------------------------------------------------------------------------------------------
+                //----------------  botones en forma des pagos  -----------------------------------------------------
+                //---------------------------------------------------------------------------------------------------
+                $("#carga_datos_pagos").css('background-color',"#F5ECCE");
+                $("#e_forma_de_pago_contado" ).change( function() { seleccionar_forma_de_pagos(); });
+                $("#e_forma_de_pago_ctacte"  ).change( function() { seleccionar_forma_de_pagos(); });
+
+                $("#b_agregar_pago"  ).click(function(){agregar_pago_al_listado_de_pago();      });
+                $("#b_vaciar_la_tabla_pago"     ).click(function(){vaciar_tabla_pago();         });
+                $("#b_eliminar_pago" ).click(function(){eliminar_pago_al_listado_pago();        });
+
+                $("#e_buscar_cliente_ctacte").mouseover( function(){carg_cliente = 2;}); // busqueda de cliente de cta. cte.
+                $("#e_alta_cliente_ctacte" ).click(function(){abrir_ventana('Alta de clientes','./abm/abm_clientes.php',400,600); });
+                $("#e_alta_banco_ctacte"   ).click(function(){abrir_ventana('Alta de bancos'  ,'./abm/abm_bancos.php',  400,600); });
+                
+                $("#i_aceptar"           ).click(function(){ aceptar_pagos(); });
+                $('#i_cancelar'          ).click(function(){ cerrar_ventana(); });
+
+        });
+       //----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
+        // habilitacion de loas formas de pago posible
+        //----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
+        
+        function aceptar_pagos(){
+            var patente_sel = $("#v_id_chofer_sel").html();
+            // si el chofer es "" significa que no selecciono un chofer
+            if (patente_sel!=''){
+             
+                    var parametros = {
+                           code : $('#sp_id_chofer_sel').html(),
+                           code2 : $('#sp_id_guarda_sel').html(),
+                           nro_v: $('#h_id_viaje').val()
+                                     };                                                   
+                    $.ajax({
+                           data: parametros,
+                           url : 'ajax_seleccionar_choferes.php',
+                           type: 'post',
+                           
+                           beforeSend: function () {
+                               //$("#t_buscar").html("Procesando, espere por favor...");
+                                                   },
+                                                  
+                           error: function (resultado){
+                               alert('Error en el procesamiento de la rutina ajax_seleccionar_vehiculo');
+                                                      },                                                                           
+                                                       
+                           success: function (resultado){
+                                    alert("Se asocio correctamente el vehiculo...");
+                                      window.close();
+                                                        }                           
+                    });  
+                }else{
+                    alert("Debe seleccionar un chofer...");
+                }
+             
+            
+        }
+        
+        
+    //-----------------------------------------------------------------------------------------    
+    // realizamos la sumatoria de factores que hacen al calculo de un precio de pasaje a pagar.
+    //-----------------------------------------------------------------------------------------
+        function calculo_precio(){
+            var i_c = 0.00; // importe del coseguro
+            var i_p = 0.00; // importe del pasaje
+            var i_pg = 0.00; // importe del pago acumulado.
+            var res = 0.00; // valor del importe del pasaje + importe del coseguro  - pagos realizados
+            
+            i_c = parseFloat($("#h_importe_coseguro_pasaje").val()).toFixed(2);
+            i_p = parseFloat($("#e_importe_pasaje").val()).toFixed(2);
+            i_pg = parseFloat($("#h_total_pago").val()).toFixed(2);
+            
+            res = i_p + i_c - i_pg;
+            
+            $("#e_importe_pago").val(res);
+        }
+        
+        
+        function seleccionar_forma_de_pagos(){   
+           
+                $("#e_importe_pago").        attr('disabled',true);
+                $("#e_cliente_ctacte").      attr('disabled',true);
+                $("e_buscar_cliente_ctacte").attr('disabled',true);
+                $("e_buscar_cliente_ctacte").attr('disabled',true);
+                $("#e_cheque_fecha_emision").attr('disabled',true);
+                $("#e_cheque_fecha_cobro").  attr('disabled',true);
+                $("#e_cheque_nro_cheque").   attr('disabled',true);
+                $("#e_cheque_banco").        attr('disabled',true);
+                $("#e_cheque_operacion").    attr('disabled',true);
+                $("#e_cheque_a_nombre_de").  attr('disabled',true);
+                $("#e_recibido_de").         attr('disabled',true);
+
+                $("#div_ctacte").            attr('style',"display: none");
+                $("#div_cheque").            attr('style',"display: none");
+
+                $("#div_titulo_ctacte").     attr('style',"display: none");
+                $("#div_titulo_cheque").     attr('style',"display: none");
+                $("#div_titulo_contado").    attr('style',"display: none");
+                $("#div_pago_destino").      attr('style',"display: none");
+                
+                // Si se cambio el tipo de pasaje y hay pagos realizados se verifica que quede todo correctamente
+                // $("#e_importe_pago").val(  parseFloat($("#h_total_acumolado").val()).toFixed(2) - parseFloat($("#e_mostrar_pago").html()).toFixed(2));
+                calculo_precio();
+                
+                // si es de contado
+                if ($("#e_forma_de_pago_contado").is(":checked")) {
+                    $("#e_importe_pago").attr('disabled',false);
+                    
+                    $("#e_importe_pago").focus();                   
+                    $("#carga_datos_pagos").css('background-color',"#F5ECCE" );
+                }else{ // si es un cheque
+                    if ($("#e_forma_de_pago_cheque").is(":checked")) {
+
+                        $("#div_cheque").  attr('style',"display: block");
+
+                        $("#e_importe_pago").attr('disabled',        false);
+                        $("#e_cheque_fecha_emision").attr('disabled',false);
+                        $("#e_cheque_fecha_cobro").attr('disabled',  false);
+                        $("#e_cheque_nro_cheque").attr('disabled',   false);
+                        $("#e_cheque_banco").attr('disabled',        false);
+                        $("#e_cheque_operacion").attr('disabled',    false);
+                        $("#e_cheque_a_nombre_de").attr('disabled',  false);
+                        $("#e_recibido_de").  attr('disabled',false);
+                        $("#e_cheque_propio1").attr('disabled',  false);
+                        $("#e_cheque_propio2").attr('disabled',  false);
+                    
+                        $("#e_cheque_fecha_emision").focus();
+                        $("#carga_datos_pagos").css('background-color',"#A9D0F5" );
+                    
+                    }else{  // si es una cta. cte.
+                            if ($("#e_forma_de_pago_ctacte").is(":checked")){   
+                                $("#div_ctacte").  attr('style',"display: block");
+                                $("e_buscar_cliente_ctacte").attr('disabled',false);
+                                $("e_alta_cliente_ctacte").  attr('disabled',false);
+                                //$("#e_importe_pago").val( parseFloat($("#h_total_acumolado").val()) - parseFloat($("#e_mostrar_pago").html()) );
+                                $("#e_cliente_ctacte").focus();
+                                $("#carga_datos_pagos").css('background-color',"#F8E0E6" );
+                            }else{
+                                $("#div_pago_destino").   attr('style',"display: block");  
+                                $("#e_nombre_pago_destino").val($("#e_destinatario").val());
+                                $("#e_nombre_pago_destino").focus();                                  
+                                $("#carga_datos_pagos").css('background-color',"#E3D3FA" );
+                            }
+                   }
+                }       
+        }
+        
+//---------------------------------------------------------------------------------
+// Verificamos que se cargen correctamente los cheques 
+//----------------------------------------------------------------------------------
+            function validar_carga_de_cheque(){
+                     var aux = false;
+                     if ( $("#e_cheque_banco").attr('id')==0){                        
+                         alert('Debe completar a que Banco pertenece el cheque.');
+                         $("#e_cheque_banco").focus();
+                     }else{
+                        
+                        if ( $("#e_cheque_nro_cheque").attr('id')==0){                        
+                            alert('Debe completar el nro de cheque.');
+                            $("#e_cheque_nro_cheque").focus();
+                        }else{
+                             aux =  true;
+                        }    
+                     
+                     }    
+                     return aux;
+            }
+//---------------------------------------------------------------------------------
+// Verificamos que se cargen correctamente los cheques 
+//----------------------------------------------------------------------------------
+            function validar_carga_de_ctacte(){
+                     var aux = false;                     
+                     if ($("#e_cliente_ctacte").val()==''){                        
+                         alert('Debe completar al cliente que contiene la cta. cte.');
+                         $("#e_cliente_ctacte").focus();
+                     }else{
+                         aux = true;
+                     }
+                     return aux;
+            }
+//---------------------------------------------------------------------------------
+// Verificamos que se cargen correctamente los datos de cobro en destino 
+//----------------------------------------------------------------------------------
+            function validar_pago_destino  (){
+                     var aux = false;                                          
+                     if ($("#e_nombre_pago_destino").val()==''){                        
+                         alert('Debe completar el destinatario para determinar donde y a quien cobrar.');
+                         $("#e_destinatario").focus();
+                     }else{
+                         aux = true;
+                     }
+                     return aux;
+            }
+        
+//-----------------------------------------------------------------------------------
+// Completa el listado de pagos asociadas a la guia de encomienda.
+// accion: registra el pago, contado, o cta. cte., o cheques. Incrementando el 
+//          total de pagos.
+//-----------------------------------------------------------------------------------
+/*
+
+            function agregar_pago_al_listado_de_pago(){
+                var aux = 0;
+                aux = parseFloat( $("#h_deuda_pasaje").val() ).toFixed(2);
+                if (aux>0){
+                
+                    // Si el importe a agregar es mayor que cero
+                    var importe = $("#e_importe_pago").val();
+            
+                    if (importe>0) {                    
+                        var dato_pago = '';
+                        var a0 = parseInt( $("#h_cantidad_pago").val() ) + 1;
+                        var a1 = 0.00;
+                        var a2 = 0.00;
+                        var a3 = 0.00;
+                        var detalle_pago = '';
+                    
+                        var carga_correcta_cheque = 'S';
+                        var carga_correcta_ctacte = 'S';
+                    
+                        //---------------------------------------------------------------------------------------------------------------------
+                        // juntamos los datos para guardarlo en el objeto h_detalle_pago
+                        // si es de contado y ctacte se completaran los espacios con ' '.                    
+                        //---------------------------------------------------------------------------------------------------------------------
+                        if ($("#e_forma_de_pago_contado").is(":checked")) {
+                            detalle_pago = 'Efectivo';
+                            dato_pago = '1#'+importe+'# # # # # # # # '; // completamos los espacios
+                        }else{
+                            if ($("#e_forma_de_pago_cheque").is(":checked")) {                             
+                                //-----------------------------------------------------
+                                // validamos los datos correctos para la carga de cheques
+                                if (validar_carga_de_cheque()){
+                               
+                                    detalle_pago = 'Cheque Nro: '+$("#e_cheque_nro_cheque").val();    
+                                    dato_pago = '2#'+importe+'#'+$("#e_cheque_fecha_emision").val()+'#'+$("#e_cheque_fecha_cobro").val()+'#'+
+                                        $("#e_cheque_nro_cheque").val()+'#'+$("#e_cheque_operacion").val()+'#'+
+                                        $("#e_cheque_a_nombre_de").val()+'#'+$("#e_recibido_de").val()+'#'+$("#e_cheque_banco").val()+'#'+$("input:radio[name=e_cheque_propio]:checked").val();
+                                
+                                    carga_correcta_cheque = 'S';
+                                }else{
+                                    carga_correcta_cheque = 'N';
+                                }
+                             }else{
+                                if ($("#e_forma_de_pago_ctacte").is(":checked")) {
+                                    if (validar_carga_de_ctacte()){
+                                       detalle_pago = 'Cta. Cte.: '+$("#e_cliente_ctacte").val();
+                                       dato_pago = '3#'+importe+'#'+$("#h_id_cliente_ctacte").val()+'# # # # # # # '; // completamos los espacios
+                                        carga_correcta_ctacte = 'S';
+                                    }else{    
+                                       carga_correcta_ctacte = 'N'; 
+                                    }
+                                }else{
+                                    if (validar_pago_destino()){                            
+                                        detalle_pago = 'Pago Dest.';
+                                        dato_pago = '4#'+importe+'# # # # # # # # '; // completamos los espacios
+                                        carga_correcta_pago_destino = 'S';
+                                    }else{
+                                        carga_correcta_pago_destino = 'N';
+                                    }
+                                
+                                }
+                            }
+                        }
+                    
+                    
+                        //------------------------------------------------------------------------------------------------------
+                        // verificamos que las variables de control de ingreso de dato para el pago correspondiente esten en 'S'
+                        //------------------------------------------------------------------------------------------------------
+                        if ((carga_correcta_ctacte=='S')&&(carga_correcta_cheque=='S')){
+                       
+                            //---------------------------------------------------------------------------------------------------------------------                   
+                            var strNueva_Fila='<tr bgcolor="aaeeff">'+
+                             '   <td align="left"><INPUT type="checkbox" NAME="chk2"></input></td>'+                                                
+                                         '   <td align="center">'+detalle_pago+'</td>'+
+                                         '   <td align="center">$'+$("#e_importe_pago").val()+'</td>'+
+                                         '   <td style="display:none" id="id0">'+dato_pago+'</td></tr>';                        
+                             
+                            var objTabla=$('#t_detalle_pagos').parents().get(2);
+                   
+                            a1 = parseFloat($("#e_importe_pago").val()).toFixed(2);   
+                            a2 = parseFloat($("#h_total_pago").val()).toFixed(2);
+                            a3 = parseFloat(a1) + parseFloat(a2);
+                    
+                            //agregamos la nueva fila a la tabla
+                            $(objTabla).find('tbody').append(strNueva_Fila);
+                            $("#h_cantidad_pago").val(a0);                  
+                            $("#h_detalle_pago").val();                  
+                            $("#h_total_pago"  ).val(a3);
+                            $("#e_mostrar_pago").html(a3);   
+                            $("#h_detalle_pago_venta").val();
+                   
+                            //si el cuerpo la tabla esta oculto (al agregar una nueva fila) lo mostramos
+                            if (!$(objTabla).find('tbody').is(':visible')){
+                                 //le hacemos clic al titulo de la tabla, para mostrar el contenido
+                                 $(objTabla).find('caption').click();
+                            } 
+                    
+                            //$("#e_importe_pago").val("");
+                        
+                            $("#e_importe_pago").val( (parseFloat($("#h_total_acumolado").val()).toFixed(2) - parseFloat($("#e_mostrar_pago").html()).toFixed(2)).toFixed(2) );
+                        
+                        
+                        
+                        
+                        }// Finalizando la verificacion de ingreso de datos
+                    
+                    }else{
+                        alert("El importe del pago debe ser superior a 0.00...");
+                    }                 
+                }else{
+                    alert("No se puede registrar pago si no existe deuda...");
+                }                
+            }   
+            
+            */
+//-----------------------------------------------------------------------------------
+// Completa el listado de pagos asociadas a la guia de encomienda.
+// accion: registra el pago, contado, o cta. cte., o cheques. Incrementando el 
+//          total de pagos.
+//-----------------------------------------------------------------------------------
+            function agregar_pago_al_listado_de_pago(){
+                // verificamos que se halla seleccionado el tipo de pasaje y su 
+                // importe correspondiente.
+                //if ($("#e_importe_pasaje").val()>0){
+                var aux = 0;
+                aux = parseFloat( $("#h_deuda_pasaje").val() ).toFixed(2);
+                if (aux>0){ 
+                    // Si el importe a agregar es mayor que cero
+                    var importe = parseFloat($("#e_importe_pago").val()).toFixed(2);
+                    if (importe>0) {                    
+                        var dato_pago = '';
+                        var a0 = parseInt( $("#h_cantidad_pago").val() ) + 1;
+                        var a1 = 0.00;
+                        var a2 = 0.00;
+                        var a3 = 0.00;
+                        var detalle_pago = '';
+                    
+                        var carga_correcta_cheque = 'S'; // bandera, indica si se cargo todos los datos de cheques
+                        var carga_correcta_ctacte = 'S'; // bandera, indica si se cargo todos los datos de la ctacte
+                    
+                        //---------------------------------------------------------------------------------------------------------------------
+                        // juntamos los datos para guardarlo en el objeto h_detalle_pago
+                        // si es de contado y ctacte se completaran los espacios con ' '.                    
+                        //---------------------------------------------------------------------------------------------------------------------
+                        if ($("#e_forma_de_pago_contado").is(":checked")) {
+                            detalle_pago = 'Efectivo';
+                            dato_pago = '1#'+importe+'# # # # # # # # '; // completamos los espacios
+                        }else{
+                            if ($("#e_forma_de_pago_cheque").is(":checked")) {                             
+                                //-----------------------------------------------------
+                                // validamos los datos correctos para la carga de cheques
+                                if (validar_carga_de_cheque()){
+                               
+                                    detalle_pago = 'Cheque Nro: '+$("#e_cheque_nro_cheque").val();    
+                                    dato_pago = '2#'+importe+'#'+$("#e_cheque_fecha_emision").val()+'#'+$("#e_cheque_fecha_cobro").val()+'#'+
+                                        $("#e_cheque_nro_cheque").val()+'#'+$("#e_cheque_operacion").val()+'#'+
+                                        $("#e_cheque_a_nombre_de").val()+'#'+$("#e_recibido_de").val()+'#'+$("#e_cheque_banco").val()+'#'+$("input:radio[name=e_cheque_propio]:checked").val();
+                            
+                                    carga_correcta_cheque = 'S';
+                                }else{
+                                    carga_correcta_cheque = 'N';
+                                }
+                            
+                            
+                            }else{
+                                if ($("#e_forma_de_pago_ctacte").is(":checked")) {
+                                    if (validar_carga_de_ctacte()){
+                                        detalle_pago = 'Cta. Cte.: '+$("#e_cliente_ctacte").val().toFixed(2);
+                                        dato_pago = '3#'+importe+'#'+$("#h_id_cliente_ctacte").val().toFixed(2)+'# # # # # # # '; // completamos los espacios
+                                        carga_correcta_ctacte = 'S';
+                                    }else{    
+                                        carga_correcta_ctacte = 'N'; 
+                                    }
+                                }else{
+                                    if (validar_pago_destino()){                            
+                                        detalle_pago = 'Pago Dest.';
+                                        dato_pago = '4#'+importe+'# # # # # # # # '; // completamos los espacios
+                                        carga_correcta_pago_destino = 'S';
+                                    }else{
+                                        carga_correcta_pago_destino = 'N';
+                                    }
+                                
+                                }
+                            }
+                        }
+                    
+                    
+                        //------------------------------------------------------------------------------------------------------
+                        // verificamos que las variables de control de ingreso de dato para el pago correspondiente esten en 'S'
+                        //------------------------------------------------------------------------------------------------------
+                        if ((carga_correcta_ctacte=='S')&&(carga_correcta_cheque=='S')){
+                       
+                            //---------------------------------------------------------------------------------------------------------------------                   
+                            var strNueva_Fila='<tr bgcolor="aaeeff">'+
+                                '   <td align="left"><INPUT type="checkbox" NAME="chk2"></input></td>'+                                                
+                                '   <td align="center">'+detalle_pago+'</td>'+
+                                     '   <td align="center">$ '+importe+'</td>'+
+                                     '   <td style="display:none" id="id0">'+dato_pago+'</td></tr>';                        
+                             
+                            var objTabla=$('#t_detalle_pagos').parents().get(2);
+                   
+                            a1 = parseFloat($("#e_importe_pago").val()).toFixed(2);   
+                            a2 = parseFloat($("#h_total_pago").val()).toFixed(2);
+                            a3 = parseFloat(a1) + parseFloat(a2);
+                    
+                            //agregamos la nueva fila a la tabla
+                            $(objTabla).find('tbody').append(strNueva_Fila);
+                            $("#h_cantidad_pago").val(a0);                  
+                            $("#h_detalle_pago").val();                  
+                            
+                            $("#e_importe_pago").val( parseFloat(
+                                    parseFloat($("#h_importe_deuda_pasaje").val()) 
+                                     - (                                        
+                                         parseFloat($("#e_importe_pago").val()) + parseFloat($("#e_mostrar_pago").html()) 
+                                        )
+                            ).toFixed(2));                            
+
+                            
+                            $("#h_total_pago"  ).val(a3.toFixed(2));
+                            $("#e_mostrar_pago").html(a3.toFixed(2));   
+                            $("#h_detalle_pago_venta").val();
+                   
+                            //si el cuerpo la tabla esta oculto (al agregar una nueva fila) lo mostramos
+                            if (!$(objTabla).find('tbody').is(':visible')){
+                                 //le hacemos clic al titulo de la tabla, para mostrar el contenido
+                                $(objTabla).find('caption').click();
+                            } 
+                           // $("#h_importe_deuda_pasaje").val($("#e_importe_pago").val().toFixed(2));                                              
+                                               
+                        }// Finalizando la verificacion de ingreso de datos
+                    
+                    }else{
+                        alert("El importe del pago debe ser superior a 0.00...");
+                    }                 
+                }else{
+                    alert("No se puede registrar pago si no existe deuda...");
+                }                
+            }   
+            
+            
+            
+            
+            
+            
+            //------------------------------------------------------------------
+            //
+            //------------------------------------------------------------------
+            function vaciar_tabla_pago(){
+                //evento que se produce al hacer clic en el boton que elimina una tabla completamente
+                //$(document).on('click','.clsEliminarTabla',function(){
+                $("#t_detalle_pagos > tbody").empty();
+                $("#h_cantidad_pago").val(0);
+/*                
+                var aux = 0;
+                aux = parseFloat($('#e_importe_pasaje').val()).toFixed(2);
+                
+                var aux2 = 0;
+                aux2 = parseFloat($("#h_total_pago").val()).toFixed(2);
+                
+                var res = 0;
+                res = parseFloat(aux) +  parseFloat(aux2);
+  */
+                var res = 0;
+                res = parseFloat($("#h_importe_deuda_pasaje").val()).toFixed(2);
+                $('#e_importe_pago').val(res);
+                $('#h_importe_deuda_pasaje').val(res);
+                
+                $("#h_total_pago").val(0.00);                
+                $("#e_mostrar_pago").html("0.00");
+            }
+            //------------------------------------------------------------------
+            //------------------------------------------------------------------
+        
+            //------------------------------------------------------------------
+            //------------------------------------------------------------------
+            function eliminar_pago_al_listado_pago(){
+               try {
+                    var mensaje = "Debe seleccionar un pago para eliminarlo...";
+                    var table = document.getElementById("cuerpo_detalle_pagos");
+                    var borrado = false; // determina si se realizo el borrado
+                    var rowCount = table.rows.length; // determina la cantidad de filas
+                    if (rowCount>1){
+                        for(var i=0; i<rowCount; i++) {
+                            
+                            var row = table.rows[i];
+                            var chkbox  = row.cells[0].childNodes[0];
+                            var importe = row.cells[2].childNodes[0].nodeValue;
+                            importe = importe.substring(1);
+
+                            if((null != chkbox) && (true == chkbox.checked)) {
+                                table.deleteRow(i);
+                                rowCount--;
+                                i--;
+                                borrado = true;
+                                // restamos de los totales
+                                $("#h_cantidad_pago").val(   parseInt($("#h_cantidad_pago").val()) - 1);
+                               
+                                $("#h_total_pago").val( parseFloat( parseFloat($("#h_total_pago").val()) - importe));
+                                
+                                $("#e_mostrar_pago").html( parseFloat($("#h_total_pago").val()) );   
+                                
+                                debugger;
+                                var aux1 = 0;
+                                aux1 = parseFloat($("#h_importe_deuda_pasaje").val() );
+                                
+                                var aux2 = 0;
+                                aux2 = parseFloat($("#h_total_pago").val());
+                                
+                                var res = 0;
+                                res =  aux1 -  aux2;
+                                
+                                $("#e_importe_pago").val(res.toFixed(2));                            
+                                //$("#h_importe_deuda_pasaje").val(res.toFixed(2));
+                               
+                            }                            
+                        }
+                        if(!borrado)
+                            alert(mensaje);
+                    }else{
+                        var row = table.rows[0];
+                        var chkbox = row.cells[0].childNodes[0];
+                        if((null != chkbox) && (true == chkbox.checked)) {
+                            vaciar_tabla_pago();
+                        }else{
+                            alert(mensaje);
+                        }
+                    }
+               }catch(e) {
+                    alert(e);
+               }                
+            }
+
+    
+//------------------------------------------------------------------------------
+// Cierra la ventana 
+//------------------------------------------------------------------------------
+        function cerrar_ventana(){
+            if (confirm('¿Segúro de cancelar el pago?'))
+                window.close();
+        }
+            
+
+    
+</script>    
+    <body>
+
+        <input id="h_importe_pasaje"          type="hidden" value="{v_importe_pasaje}" />
+        <input id="h_deuda_pasaje"            type="hidden" value="{v_deuda_pasaje}"   />
+        <input id="h_importe_coseguro_pasaje" type="hidden" value="{v_importe_coseguro_pasaje}"   />
+
+        <div id="pagos" align="center">
+            <table id="t_form_pago"  width="100%" cellspacing="0" border="1" >
+                    <tr>
+                        <td colspan="9" bgcolor="{v_color_cabezera_columna}">
+                            <b>Forma de pago</b><br>
+
+                        </td>
+                    </tr>
+                    <tr>                    
+                        <td colspan="9" >
+                            <input type="radio" id="e_forma_de_pago_contado" checked name="e_forma_de_pago" value="0">Contado
+                            <input type="radio" id="e_forma_de_pago_ctacte"          name="e_forma_de_pago" value="2">Cta.Cte.                                                         
+                            <input type="radio" id="e_forma_de_pago_tarjeta"         name="e_forma_de_pago" value="2">Tarjeta                                                         
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- ------------------------------------------------------------------------------------
+                            forma de pagos                      
+                        -------------------------------------------------------------------------------------- -->  
+                        <td height="39" colspan="5" align="right" >
+                            <!-- --------- Detalle de titulos ------------------------- -->
+                            <div align="left" id="carga_datos_pagos">
+
+                                <div id="div_ctacte" style="display: none">
+                                    Nombre Cta.Cte.:<input type="text" id="e_cliente_ctacte" size="30" disabled=false/>
+                                    <input type="hidden" id="h_id_cliente_ctacte"/>
+                                    <input  type="image" src="./imagenes/busqueda.png"  name="e_buscar_cliente_ctacte" id="e_buscar_cliente_ctacte" value="Buscar_cliente_ctacte" class='osx demo' />
+                                    <input  type="image" src="./imagenes/agregar.png"  name="e_alta_cliente_ctacte" id="e_alta_cliente_ctacte"  />                          
+                                </div>                                                                        
+
+                                <br>              
+                            
+                                <div id="div_cheque" style="display: none">              
+                                    Fecha Emision:<input type="date" id="e_cheque_fecha_emision" disabled/>
+                                    Fecha Cobro:  <input type="date" id="e_cheque_fecha_cobro" disabled /><br>
+                                    Nro. Cheque:  <input type="text" id="e_cheque_nro_cheque" size="10" disabled/>
+                                    <input type="hidden" id="h_id_banco"/>
+                                    Banco:<select name="e_cheque_banco" size="1" id="e_cheque_banco" disabled>
+                                     {v_comboBox_banco}
+                                    </select>
+                                        <input type="image" src="./imagenes/agregar.png" name="e_alta_banco_ctacte" id="e_alta_banco_ctacte" />                          
+                                        <br>
+                                        Operación:<input type="text" id="e_cheque_operacion" size="50" disabled/><br>
+                                        A nombre de:<input type="text" id="e_cheque_a_nombre_de" size="50" disabled/><br>
+                                        Recibido de:<input type="text" id="e_recibido_de" size="50" disabled/><br>
+                                        Cheque propio:    Si:<input type="radio" name="e_cheque_propio" id="e_cheque_propio1" value="S" checked disabled/>
+                                                          No:<input type="radio" name="e_cheque_propio" id="e_cheque_propio2" value="N" disabled/>
+                                </div>                                    
+                                
+                                <div id="div_pago_destino" style="display: none">              
+                                    Paga en destino:<input type="text" id="e_nombre_pago_destino" size="50" disabled/>
+                                </div>                                    
+                                    
+                                <div id="div_pago_tarjeta" style="display: none">              
+                                    Tarjeta:<input type="text" id="e_tarjeta" size="50" disabled/>
+                                </div>                                      
+                                    
+                                Importe:<input type="text" id="e_importe_pago" size="10" value="{v_deuda_pasaje}"/><br>                            
+                                <br>                                
+                                </div>
+                        </td>
+                            <td align="center">
+                            <input type="image" src="./imagenes/seleccion_izq.jpg"  name="b_agregar_pago" id="b_agregar_pago" value="Agregar" />                                                                                    
+                            <br>
+                            <input type="image" src="./imagenes/seleccion_der.jpg"  name="b_eliminar_pago" id="b_eliminar_pago" value="-" />
+
+                        </td>
+                        <td height="39" colspan="3">
+                             
+                            <div id="divContenedorTabla_pagos" align="center">                               
+                            <input type="image" src="./imagenes/vaciar_tabla.png" value="Vaciar la tabla" id="b_vaciar_la_tabla_pago">                                                                                
+                            <table id="t_detalle_pagos" border="1" align="center" cellspacing="0">
+                
+                                <thead>
+                                    <tr> 
+                                        <th>                                            
+                                        </th>
+                                        <th>                                                       
+                                            Tipo de pago:
+                                        </th>                                            
+                                        <th>
+                                            Importe
+                                            <input type="hidden" id="h_cantidad_pago"value="{v_cantidad_pago}"/>                                            
+                                            <input type="hidden" id="h_detalle_pago" value="{v_detalle_pago}"/>
+                                            <input type="hidden" id="h_total_pago" value="{v_total_pago}"/>                                            
+                                        </th>
+                                    </tr>                                                                      
+                                </thead>
+                                
+                                <tbody id="cuerpo_detalle_pagos">
+                                </tbody>
+                                
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2">Total pagado:</td>
+                                        <td><span id="e_mostrar_pago">{v_total_pago}</span></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            </div>                            
+                            
+                        </td>                     
+                    <!-- ------------------------------------------------------------------------------------
+                        fin forma de pagos                      
+                    ---------------------------------------------------------------------------------------->                           
+                    </tr>
+                   
+               </table>
+               
+           </div>            
+        <br>
+                <!--
+                --------------------------------------------------------------------------------
+                -------------   Botonera de mando ----------------------------------------------
+                -------------------------------------------------------------------------------- 
+                -->
+                <table align="center" width="100%" cellspacing="0" border="1">
+                    <tr align="center">
+                        <td align="center">
+                            <div style="float: center; width: 200px;">
+                            <!--  [ ACEPTAR ] -->      
+                                <div style="float: left;font-size: 11;margin: 2;border: 1px solid #cccccc;background-color: #ffffff; width: 60px;">
+                                    <input type="image" id='i_aceptar' src='./imagenes/ok.png'>
+                                    <br>Aceptar
+                                </div>
+                        
+                                <!--  [ CANCELAR ] -->
+                                <div style="float: left;font-size: 11;margin: 2;border: 1px solid #cccccc;background-color: #ffffff; width: 60px;">
+                                    <input type="image" id='i_cancelar' src='./imagenes/cancelar.gif'>
+                                    <br>Cancelar
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+ 
+                <!-- ---------------------------------------------------------------------------
+                --------------------------------------------------------------------------------
+                                Sextor de POPUP de busqueda de clientes
+                --------------------------------------------------------------------------------
+                ---------------------------------------------------------------------------- -->
+<div id="osx-modal-content">
+    <div id="osx-modal-title">Buscandor de Clientes...</div>
+    <div class="close"><a href="#" class="simplemodal-close">x</a></div>
+    <div id="osx-modal-data">
+	<h2>Buscar</h2>
+        <input name="e_buscar" type="text"  id="e_buscar" size="35" />
+        <input name="b_buscar" type="image" src="./imagenes/busqueda.png" id="b_buscar" />
+        
+        <!-- Sector de grilla -->
+        <span id="t_buscar"> </span>
+
+	<p> 
+            
+            <input type="image" class="simplemodal-close" src="./imagenes/ok.png"       id="b_aceptar_clientes"  size="15" />Aceptar
+            <input type="image" class="simplemodal-close" src="./imagenes/cancelar.gif" id="b_cancelar_cliente" />Cancelar   <span>(Presione ESC para cancelar)</span>
+
+        </p>
+    </div>
+</div>
+
+    </body>
+</html>

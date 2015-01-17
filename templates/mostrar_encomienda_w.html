@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<script type="text/javascript">
+// cierra la pantalla
+	function cerrar_ventana()
+		{
+			window.close();
+		};		
+		//imprime la pantalla 
+	function imprimir(numero){
+		document.getElementById("mandos").style.display='none';
+		if (confirm("¡Desea imprimir esta encomienda "+numero+"?")){
+			window.print();
+		};
+		document.getElementById("mandos").style.display='inline';
+		window.close();
+	}
+
+</script>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Documento sin título</title>
+</head>
+
+
+<body>
+<table width="100%" border="1" cellspacing="0">
+  <tr>
+    <td colspan="12" bgcolor="#FFCC33"><strong>Datos de la encomienda</strong></td>
+  </tr>
+  <tr>
+    <td width="7%" bgcolor="#FFCC33">Nro Guia</td>
+    <td width="12%"><strong>{v_nro_guia}</strong></td>
+    <td width="12%" bgcolor="#FFCC33">Comicionista</td>
+    <td width="12%"><strong>{v_comisionista}</strong></td>
+    <td width="8%" bgcolor="#FFCC33">Fecha:</td>
+    <td width="14%"><strong>{v_fecha}</strong></td>
+    <td width="12%" bgcolor="#FFCC33">F. Entregada</td>
+    <td width="23%"><strong>{v_fecha_entrega}</strong></td>
+    <td width="23%" bgcolor="#FFCC33"><strong>prioridad</strong></td>
+    <td width="23%"><strong>{v_prioridad}</strong></td>
+    <td width="23%" bgcolor="#FFCC33"><strong>Estado</strong></td>
+    <td width="23%"><strong>{v_estado}</strong></td>
+  </tr>
+  <tr>
+    <td bgcolor="#FFFF00">DNI:</td>
+    <td colspan="3" bgcolor="#FFFF00">{v_dni_remitente}</td>
+    <td bgcolor="#C4FCC2">DNI</td>
+    <td colspan="7" bgcolor="#C4FCC2">{v_destinatario}</td>
+  </tr>
+  <tr>
+    <td bgcolor="#FFFF00">Remitente</td>
+    <td colspan="3" bgcolor="#FFFF00">{v_remitente}</td>
+    <td bgcolor="#C4FCC2">Destinatario</td>
+    <td colspan="7" bgcolor="#C4FCC2">{v_destinatario}</td>
+  </tr>
+  <tr>
+    <td bgcolor="#FFFF00">Direccion</td>
+    <td colspan="3" bgcolor="#FFFF00">{v_dir_remitente}</td>
+    <td bgcolor="#C4FCC2">Direccion</td>
+    <td colspan="7" bgcolor="#C4FCC2">{v_dir_destinatario}</td>
+  </tr>
+  <tr>
+    <td bgcolor="#FFFF00">Localidad</td>
+    <td colspan="3" bgcolor="#FFFF00">{v_localidad_remitente}</td>
+    <td bgcolor="#C4FCC2">Localidad</td>
+    <td colspan="7" bgcolor="#C4FCC2">{v_localidad_destinatario}</td>
+  </tr>
+  <tr>
+    <td bgcolor="#FFFF00">Tel:</td>
+    <td colspan="3" bgcolor="#FFFF00">{v_tel_remitente}</td>
+    <td bgcolor="#C4FCC2">Tel:</td>
+    <td colspan="7" bgcolor="#C4FCC2">{v_tel_destinatario}</td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">Precio</td>
+    <td align="center" valign="middle">{v_precio}</td>
+    <td align="center" valign="middle">comision comisionista</td>
+    <td align="center" valign="middle">{v_comision_comisionista}</td>
+    <td align="center" valign="middle">comision sucursal</td>
+    <td align="center" valign="middle">{v_comision_sucursal}</td>
+    <td align="center" valign="middle">Seguro:</td>
+    <td align="center" valign="middle">{v_importe_seguro}</td>
+    <td align="center" valign="middle">Nro Factura</td>
+    <td align="center" valign="middle">{v_nro_factura}</td>
+    <td align="center" valign="middle">Tipo correspondencia</td>
+    <td align="center" valign="middle">{v_tipo_encomienda}</td>
+  </tr>
+</table>
+<table id='mandos' width="21%" border="0" align="center" cellspacing="0">
+	    <tr align="center" valign="middle">
+    		<td>   
+      			<input TYPE="image" SRC="./imagenes/ok.png" BORDER="0" name="volver" id="volver" value="volver" onclick="cerrar_ventana()"/>
+      			<strong> Aceptar
+            </strong></td>
+            <td valign="middle"><input type="image" src="./imagenes/pdf.png" border="0" name="pdf" id="pdf" value="volver" onclick="cerrar_ventana()"/>
+            <strong>Pdf</strong></td>
+            <td>
+        		<input TYPE="image" SRC="./imagenes/imprimir.png" BORDER="0" name="imprimir" id="imprimir" value="imprimir" onclick="imprimir()"/>
+        		<strong> Imprimir
+       	    </strong></td>
+         </tr>	
+       </Table>
+</body>
+</html>
+

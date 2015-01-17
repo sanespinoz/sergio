@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>{titulo_proyecto}</title>
+	<style type="text/css">
+	<!--
+	.style2 {font-size: 24px}
+	-->
+	</style>
+	<!-- ---- seccion de sub menu ABM ------ -->
+	<link rel="stylesheet" type="text/css" href="css/estilos.css" />    
+	<script src="js/menu/modernizr.custom.63321.js"></script> 
+        <script type="text/javascript">
+           
+            function abrir_ventana(titulo,url,alto,ancho) {
+		var pos_x = (screen.height - alto) / 2;
+		var pos_y = (screen.width - ancho) / 2;
+		window.open(url, titulo, "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no height = "+alto+", width = "+ancho+", top = "+pos_y+", left ="+pos_x);
+            };            
+           
+            
+            
+        </script>            
+     
+    
+    </head>
+<body>
+<!-- --------------------------------------------------------------------------------------------------------------------------------
+sexion nro 1
+-------------------------------------------------------------------------------------------------------------------------------- -->
+<div id="mi-slider" class="mi-slider">
+    <ul>
+        <li><a href="javascript:history.go(-1);"><img src="imagenes/atras.jpg" alt="atras" click="$this.href"><h4>Volver</h4></a></li>
+        <li><a href="javascript:abrir_ventana('Tipos de encomiendas','./abm/abm_tipo_encomiendas.php',400,600);"><img src="imagenes/1.jpg" alt="img01" click='$this.href'><h4>Tipo encomienda</h4></a></li>
+        <li><a href="javascript:abrir_ventana('Tipos de clientes','./abm/abm_tipo_clientes.php',400,600);"><img src="imagenes/tipo_cliente.jpg" alt="img01" click="abrir_ventana('ABM Tipo de Clientes','$this.href',800,900);"><h4>Tipo de Clientes</h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM de clientes','./abm/abm_clientes.php',800,900);"><img src="imagenes/cliente.jpg" alt="img01" click='$this.href'><h4>Clientes</h4></a></li>
+    </ul>
+    <ul>
+        <li><a href="javascript:history.go(-1);"><img src="imagenes/atras.jpg" alt="atras" click="$this.href"><h4>Volver</h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM Tipo de Clientes','./abm/abm_tipo_clientes.php',400,600);"><img src="imagenes/tipo_cliente.jpg" alt="img01" click='$this.href'> <h4>Tipo de Clientes</h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM Clientes','./abm/abm_clientes.php,400,600);"><img src="imagenes/cliente.jpg" alt="img01" click='$this.href'><h4>Clientes</h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM Salidas','./abm/abm_salidas.php',400,600);"><img src="imagenes/salidas.jpg" alt="img01" click='$this.href'><h4>Salidas</h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM viajes','./abm/abm_viajes.php',400,600);"><img src="imagenes/viajes.jpg" alt="img01" click='$this.href'><h4>Viajes</h4></a></li>
+    </ul>
+    <ul>
+        <li><a href="javascript:history.go(-1);"><img src="imagenes/atras.jpg" alt="atras" click="$this.href"><h4>Volver</h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM de Provincias','./abm/abm_provincias.php',400,600);"><img src="imagenes/provincias.jpg"      alt="img12" click='$this.href'><h4>Provincias     </h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM de Localidades','./abm/abm_localidades.php',400,600);"><img src="imagenes/localidades.jpg"   alt="img13" click='$this.href'><h4>Localidaes     </h4></a></li>
+        <li><a href="javascript:abrir_ventana('Comis/Desc','./abm/abm_comisiones_y_descuentos.php',400,600);"><img src="imagenes/comisiones_descuentos.jpg"                  alt="img13" click='$this.href'><h4>Comis/Desc        </h4></a></li>
+        <li><a href="javascript:abrir_ventana('Vincular Comis/Desc','./abm/abm_vincular_comisiones_y_descuentos.php',400,600);"><img src="imagenes/vincular_comisiones_descuentos.jpg"                  alt="img13" click='$this.href'><h4>Vincular Comis/Desc        </h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM de Bancos','./abm/abm_bancos.php',400,600);"><img src="imagenes/bancos.jpg"                  alt="img13" click='$this.href'><h4>Bancos        </h4></a></li>
+    </ul>
+    <ul>
+        <li><a href="javascript:history.go(-1);"><img src="imagenes/atras.jpg" alt="atras" click="$this.href"><h4>Volver</h4></a></li>
+        <li><a href="javascript:abrir_ventana('Sucursales','./abm/abm_sucursales.php',400,600);"><img src="imagenes/sucursales.jpg" alt="img14" click='$this.href'><h4>Sucursales</h4></a></li>
+        <li><a href="javascript:abrir_ventana('Tipos de Usuarios','./abm/abm_tipo_usuarios.php',400,600);"><img src="imagenes/tipo_usuario.jpg" alt="img14" click='$this.href'><h4>Tipo de usuarios</h4></a></li>
+        <li><a href="javascript:abrir_ventana('ABM de Usuarios','./abm/abm_usuarios.php',400,600);"><img src="imagenes/13.jpg"                  alt="img13" click='$this.href'><h4>Usuarios        </h4></a></li>
+        <li><a href="javascript:abrir_ventana('Configuraci�n de Usuarios','./abm/abm_configuracion_usuarios.php',400,600);"><img src="imagenes/configuracion_usuario.jpg"                  alt="img13" click='$this.href'><h4>Conf. Usuarios        </h4></a></li>
+        <li><a href="javascript:abrir_ventana('Configuraci�n de Vehiculos','./abm/abm_vehiculos.php',400,800);"><img src="imagenes/cole.jpg"                  alt="img13" click='$this.href'><h4>Conf. vehiculos        </h4></a></li>
+        
+    </ul>
+    
+    <nav>
+        <a href="#">Encomiendas</a>
+        <a href="#">Pasajes</a>
+        <a href="#">Datos de Base</a>
+        <a href="#">Empresa</a>
+    </nav>
+</div>
+
+<div align="center">
+    Versi�n del sistema:{v_sis_version} - Fecha de la ultima modificaci�n:{v_fecha_actualizacion_sistema}                   
+</div>
+
+<script src="js/menu/jquery.min.js"></script>
+<script src="js/menu/jquery.catslider.js"></script>
+<script>
+    $(function() {
+    $( '#mi-slider' ).catslider();
+                });
+</script>
+
+</body>
+
+</html>
+

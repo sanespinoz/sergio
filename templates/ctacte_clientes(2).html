@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Cta. Cte. de clientes.</title>
+</head>
+<body>
+<table border="1" width="800px" align="center" cellspacing="0" bordercolor="#DCDCDC" >
+	<tr>
+		<td align="center">
+		<font face="Arial" size="5">Cta. Cte. Clientes</font>	
+		</td>
+	</tr>
+	<tr>
+		<td bgcolor="F4BC80">
+		<!------------------------------------------------------
+			busqueda  
+		-------------------------------------------------------- -->
+		Nro. Cliente:<input type="radio" name="e_selector_busqueda" />		
+		Nombre:      <input type="radio" name="e_selector_busqueda" />
+		<input type="text" id="e_buscar" size="50px"/>
+		<input type="image" src="../imagenes/ejecutar.jpg" align="center" name="b_buscar"  id="b_buscar" value="Buscar" />
+		</td>
+	</tr>
+	<tr>
+		<!-- -----------------------------------------------------------------------
+		listado cliente
+		------------------------------------------------------------------------ -->
+		<td>
+			<table border="1" width="800px" align="center" cellspacing="0" bordercolor="#DCDCDC">
+				<tr align="center">
+					<td></td>
+					<td>Nro. Cliente</td>
+					<td>Nombre</td>
+					<td>Dirección</td>				
+				</tr>
+				
+				<tr>
+					<td></td>
+					<td>{v_nro_cliente}</td>
+					<td>{v_nombre_cliente}</td>
+					<td>{v_direccion_cliente}</td>
+				</tr>
+				
+			</table>
+		</td>	
+	</tr>
+	<tr>
+	<!-- -------------------------------------------------------------------------
+		botonera de mando 
+	--------------------------------------------------------------------------- -->
+		<td bgcolor="F4BC80">
+			<input type="image" src="../imagenes/create.png"   />Agregar Pago
+			<input type="image" src="../imagenes/editar.png"   />Agregar Deuda
+			<input type="image" src="../imagenes/imprimir.png" />Imprimir 
+
+		</td>	
+	</tr>
+	<tr>		
+	<!-- -----------------------------------------------------------------------
+		Listado de registro de cta cte.
+	------------------------------------------------------------------------ -->
+		<td>
+			<table border="1" width="800px" align="center" cellspacing="0" bordercolor="#DCDCDC" >
+				<tr align="center">
+					<td>Nro. Secuencia</td>
+					<td>Fecha</td>
+					<td>Operación</td>
+					<td>Importe debe</td>				
+					<td>Importe Haber</td>				
+				</tr>				
+				<tr>
+					<td>{v_nro_secuencia}</td>
+					<td>{v_fecha}</td>
+					<td>{v_operacion}</td>
+					<td>{v_importe_debe}</td>				
+					<td>{v_importe_haber}</td>				
+				</tr>
+				<tr>
+					<td colspan="3">
+						Totales
+					</td>
+					<td bgcolor="F4BC80">
+						{v_total_debe}
+					</td>
+					<td bgcolor="F4BC80">
+						{v_total_haber}
+					</td>
+				</tr>
+			</table>
+		</td>	
+	</tr>
+</table>
+</body>
+</html>
