@@ -56,6 +56,16 @@
                 
                 $("#i_aceptar"           ).click (function(){ aceptar_pagos(); });
                 $('#i_cancelar'          ).click (function(){ cerrar_ventana(); });
+                
+        
+        
+        debugger;
+                
+                if ( $("#h_llamado").val()==1){// es llamado desde pasajes adelantados
+                                 $("#e_forma_de_pago_reserva").attr('disabled',true);
+                  
+                    
+                }
 
         });
 
@@ -729,7 +739,7 @@
 
 
     <body>
-
+<input id="h_llamado"          type="hidden" value="{v_llamado}" />
         <input id="h_importe_pasaje"          type="hidden" value="{v_importe_pasaje}" />
         <input id="h_deuda_pasaje"            type="hidden" value="{v_deuda_pasaje}"   />
         <input id="h_importe_coseguro_pasaje" type="hidden" value="{v_importe_coseguro_pasaje}"   />

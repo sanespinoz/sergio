@@ -6,18 +6,29 @@
         <link type='text/css' href='css/demo.css'    rel='stylesheet' media='screen'/>
         
         <link type="text/css" href="css/estilos.css" rel="stylesheet" /> <!-- Estilos de la tabla -->
-        <link href="css/datepicker.css" type=text/css rel=stylesheet>
+        <!--  sergio quitado 
+            <link href="css/datepicker.css" type=text/css rel=stylesheet> 
+            <script type="text/javascript"  src="./js/datepicker.js"></script>        
+        -->
         <!-- OSX Style CSS files -->
         <link type='text/css' href='css/osx.css' rel='stylesheet' media='screen' >       
        <link rel="stylesheet" type="text/css" href="./js/sweetalert-master/lib/sweet-alert.css">
+       
+           <!--  calkendario sandra -->
+        <link rel="stylesheet" href="css/calendario.css"></link>           
     </head>   
 <!-- Page styles -->
 <script type="text/javascript" src="./js/jquery-1.3.2.js"></script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/jquery-ui-1.11.2/jquery-ui.js"></script>
+
+
+
+
 <script type="text/javascript" src="./js/propias.js"></script>
-<script type="text/javascript"  src="./js/datepicker.js"></script>
+
 <script src="./js/sweetalert-master/lib/sweet-alert.min.js"></script> 
-
-
 
 <!-- Scrip para las pantallas desplegables -->       
 <script type='text/javascript' src='./js/jquery.simplemodal.js'></script>
@@ -27,7 +38,9 @@
 
         var carg_cliente = true; // true = remitente; false = destinatario        
         $(document).ready(function(){                             
-                
+            
+                asociar_rango_calendario("#e_fecha_desde","#e_fecha_hasta"); 
+
                // var asientos = new array();
                 //$("#i_escribir_siguiente_pasaje" ).click( function() {cargar_datos_base_a_otro_pasaje();});//guarda en la bd
                 $("#i_vaciar_pasaje" ).click( function() {vaciar_pasaje();});
@@ -102,8 +115,7 @@
             i_p = parseFloat($("#e_importe_pasaje").val()).toFixed(2);
             i_pg = parseFloat($("#h_total_pago").val()).toFixed(2);
             
-            
-        res = i_p + i_c - i_pg;
+            res = i_p + i_c - i_pg;
             
             $("#e_importe_pago").val(res);
         }
@@ -166,17 +178,14 @@
                     var parametros = {
                            f_d    : $("#e_fecha_desde").val(),
                            f_h    : $("#e_fecha_hasta").val(),                           
-                           id_cliente : $("#h_id_cliente").val(),
+                           id_cli : $("#h_id_cliente").val(),
                            observ : $("#e_observaciones").val(),
                            cant   : $("#e_cantidad").val(),
-                           total  : $("#e_mostrar_pago").val(),
-                          raz : $("#e_nombre_pasaje").val(),
-                           tipo_pas :$("#e_tipo_pasaje option:selected").attr('value'),
-                           llamado_por: 1
+                           total  : $("#e_mostrar_pago").val()
                                      };                                                   
                     $.ajax({
                            data: parametros,
-                           url : 'pagar_pasajead.php',//DEBERIA IRME A PAGAR_PASAJES.PHP! url : 'ajax_crear_pasajes_adelantados.php'
+                           url : 'ajax_crear_pasajes_adelantados.php',
                            type: 'post',
                            
                            beforeSend: function () {
@@ -232,11 +241,13 @@
         
         
         //----------------------------------------------------------------------
-        // Cierra la ventana 
+        // Cierra la ventana eliminarrr
         //----------------------------------------------------------------------
         function cerrar_ventana(){
-            if (confirm('Desea cancelar la carga de pasajes adelantados?'))
-                window.close();
+          /*  if (confirm('Desea cancelar la carga de pasajes adelantados?'))
+                window.close();*/
+       abrir_ventana('Alta de bancos'  ,'pagar_pasaje.php?llamado_por=1',  400,600); 
+      //
         }
         //----------------------------------------------------------------------
         // Escribimos los pasajes que se requieren por adelantado
@@ -247,7 +258,7 @@
            //------------------------------------------------------------------------------------------
             // realizamos las validaciones correspondientes para guardar los pasajes en la base de datos
             //------------------------------------------------------------------------------------------
-          function validar_carga_pasaje(){                 
+            function validar_carga_pasaje(){                 
                  var mensaje = '';
                /*var fech1 = document.getElementById(e_fecha_desde).value;
                 var fech2 = document.getElementById(e_fecha_hasta).value;*/
@@ -261,15 +272,7 @@
                     $("#e_nombre_pasaje").css({ 'background': '#ffffff' });                    
                 }
                 
-                if($("#e_fecha_desde").val() > $("#e_fecha_hasta").val())
-                    {
-                        swal("Debe Seleccionar una fecha mayor a  Fecha Desde!");
-                        mensaje = "Debe Seleccionar una fecha mayor a  Fecha Desde...";
-                    $("#e_fecha_hasta").focus();
-                    $("#e_fecha_hasta").css({ 'background': 'red' });
-                }else{
-                    $("#e_fecha_hasta").css({ 'background': '#ffffff' });                    
-                }
+                
                 
                 if(Number($("#e_importe_pasaje").val())<=0){
                     swal("Debe seleccionar el tipo de pasajes!");
@@ -279,27 +282,16 @@
                 }else{
                     $("#e_tipo_pasaje").css({ 'background': '#ffffff' });                    
                 }
-       
-                  /*if((Date.parse(fech1)) > (Date.parse(fech2))){
-  mensaje = "Debe seleccionar una fecha posterior..."; 
-                    $("#e_feha_hasta").focus();
-                    $("#e_fecha_hasta").css({ 'background': 'red' });
-                }else{
-                    $("#e_fecha_hasta").css({ 'background': '#ffffff' });                    
-                } 
                 
-                 /* if((Date.parse(fech1)) > (Date.parse(fech2))){
-alert(Ҍa fecha inicial no puede ser mayor que la fecha finalҩ;
-}
-                  * 
-                  * if(Number($("#e_fecha_desde")<$("#e_fecha_hasta")){
+                  if(($("#e_fecha_desde").val())>($("#e_fecha_hasta").val())){
+                    swal("Ingrese una Fecha Posterior a la ingresada en Fecha Desde!");
                     mensaje = "Debe seleccionar una fecha posterior..."; 
-                    $("#e_feha_hasta").focus();
+                    $("#e_fecha_hasta").focus();
                     $("#e_fecha_hasta").css({ 'background': 'red' });
                 }else{
                     $("#e_fecha_hasta").css({ 'background': '#ffffff' });                    
-                }    
-         */
+                }
+  
                 
                 if (mensaje==''){
                     return true;
@@ -787,7 +779,7 @@ alert(Ҍa fecha inicial no puede ser mayor que la fecha finalҩ;
                                     </select>
                                         <input type="image" src="./imagenes/agregar.png" name="e_alta_banco_ctacte" id="e_alta_banco_ctacte" />                          
                                         <br>
-                                        Operación:<input type="text" id="e_cheque_operacion" size="50" disabled/><br>
+                                        Operaci󮺼input type="text" id="e_cheque_operacion" size="50" disabled/><br>
                                         A nombre de:<input type="text" id="e_cheque_a_nombre_de" size="50" disabled/><br>
                                         Recibido de:<input type="text" id="e_recibido_de" size="50" disabled/><br>
                                         Cheque propio:    Si:<input type="radio" name="e_cheque_propio" id="e_cheque_propio1" value="S" checked disabled/>
