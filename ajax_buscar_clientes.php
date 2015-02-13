@@ -6,7 +6,7 @@ include_once("conexion.php");
 require_once 'class.eyemysqladap.inc.php';
 require_once 'class.eyedatagrid.inc.php';
 
-$dato = $_REQUEST["code"]; // dato a buscar.
+$dato = $_REQUEST["code"]; // dato, por ejemplo nombre a buscar.
 // nro, dni, nombre, direccion, id_loc, localidad, id_prov, provincia, tel 
 $selec = " l.codigo, l.dni, l.nombre, l.direccion, o.localidad, p.provincia, l.tel, l.razon_social, l.direccion_razon_social ";
 $from  = " clientes l inner join localidades o on (l.id_localidad=o.codigo) inner join provincias p on (o.id_provincia=p.codigo)";

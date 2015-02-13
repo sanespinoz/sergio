@@ -1,0 +1,360 @@
+<!-- -------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Objetivo: Listar los pasajes pagos
+Funcionalidad: Esta pantalla tiene como dato de entrada los datos cargados en las siguientes tablas.
+    Tablas: encomiendas -> Registro de encomiendas. 
+            detalle_encomiendas -> Esta tabla contiene los detalles de encomiendas como tipo, cantidad, etc.  
+            pagos -> Referencia a esta tabla para saber los pagos realizados a cada encomeindas.
+            tipo de encomiendas -> Referencia a los tipos de encomeindas que maneja la empresa.
+            La funcion de esta pantalla es marcar las encomiendas como entregadas. Para ellos cambiamos dos campos:
+            encomienda->entregada = 'S' y encomienda->estado = 'ENTREGADA'
+Salida de la pantalla
+            Las salidas de esta pantalla es un listado de los pasajes pagos por imprimir o no.
+--------------------------------------------------------------------------------
+---------------------------------------------------------------------------- -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang='es'>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <title>Pasajes Pagados</title>        
+
+        <link type='text/css' href='css/demo.css'    rel='stylesheet' media='screen'/>
+
+        <link type="text/css" href="css/estilos.css" rel="stylesheet" /> <!-- Estilos de la tabla -->
+        <link href="css/datepicker.css" type=text/css rel=stylesheet>
+            <!-- OSX Style CSS files -->
+
+
+
+
+            <link rel="stylesheet" href="/css/marciano.css">
+                <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+                    </head>   
+                    <!-- Page styles -->
+                    <!--<script type="text/javascript" src="./js/jquery-1.3.2.js"></script> -->
+                    <script type="text/javascript" src="./js/propias.js"></script>
+                    <!--script type="text/javascript"  src="./js/datepicker.js"></script>   -->  
+                    <!--<script type="text/javascript"  src="./js/datepicker/datepicker.js"></script>   -->
+
+
+                    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+                    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+
+                    <script>
+                        $(function () {
+                            $("#e_fecha_desde").datepicker({
+                                dateFormat: "dd/mm/yy",
+                                monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+                                dayNamesMin: ["Do", "Lu", "Ma", "Mie", "Ju", "Vie", "Sa"]
+                            });
+                        });
+                    </script>
+                    <script>
+                        $(function () {
+                            $("#e_fecha_hasta").datepicker({
+                                defaultDate: "+ 1m",
+                                dateFormat: "dd/mm/yy",
+                                monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+                                dayNamesMin: ["Do", "Lu", "Ma", "Mie", "Ju", "Vie", "Sa"]
+                            });
+                        });
+                    </script>
+
+                    <script type="text/javascript">
+
+                        $(document).ready(function () {
+
+
+                            $("#i_buscar").click(function () {
+                                ejecutar_busqueda();
+                            });
+
+
+
+                            $("#b_imprimir").click(function () {
+                                imprimir_procesados();
+                            });
+                        });
+
+                        //----------------------------------------------------------------------    
+                        // Titulo: Titulo de la ventana
+                        // Url: pagina con parametro 
+                        // alto, ancho: alto y ancho de la ventana.
+                        //----------------------------------------------------------------------    
+                        function abrir_ventana(titulo, url, alto, ancho) {
+                            var pos_x = (screen.height - alto) / 2;
+                            var pos_y = (screen.width - ancho) / 2;
+                            window.open(url, titulo, "toolbar = 0, status = 0, menubar = 0, resizable = 0, titlebar = 0, hotkeys = 0, height = " + alto + ", width = " + ancho + ", top = " + pos_y + ", left =" + pos_x);
+                        }
+                        ;
+
+
+
+
+                        //----------------------------------------------------------------------    
+                        // Realiza la busqueda de los pasajes HACER UN AJAXXXX
+                        //----------------------------------------------------------------------          
+                        function ejecutar_busqueda() {
+                            var parametros = {
+                                f_d: $("#e_fecha_desde").val(),
+                                f_h: $("#e_fecha_hasta").val(),
+                                lo: $("#e_listado_localidad_origen option:selected").html(),
+                                ld: $("#e_listado_localidad_destino option:selected").html(),
+                                tip_p: $("#e_listado_tipo_pasaje option:selected").attr('value'),
+                                fo_p: $("#e_listado_forma_pago option:selected").attr('value')
+                            };
+
+                            $.ajax({
+                                data: parametros,
+                                url: 'ajax_buscar_pasajes_pagos.php',
+                                type: 'post',
+                                beforeSend: function () {
+                                    // $("#t_buscar").html("Procesando, espere por favor...");
+                                },
+                                success: function (resultado) {
+                                    //------------------------------------------------------------------------------------------------------        
+                                    // Devolución de ajax_buscar_salidas.php
+                                    //------------------------------------------------------------------------------------------------------        
+                                    // (0)numero pasaje -(1)nom y ap pasajero - (2)dni - (3)loc ori                   - 
+                                    // (4)dir ori - (5)loc dest - (6)dir dest - (7)nom ap pas seg - (8) dni pas seguro - 
+                                    // (9)forma pago - (10)fecha 
+                                    //------------------------------------------------------------------------------------------------------        
+                                    //alert(resultado);
+                                    // verificamos que existan salidas directas para la fecha.                          
+                                    if (resultado.trim() == "") {
+                                        alert('No se encontraron pasajes...');
+
+                                    }
+                                    // Vaciamos la lista
+                                    $("#tabla_salidas > tbody").empty();
+
+
+
+                                    /*  limpiar_visor_vehiculos();
+                                     limpiar_visor_asiento();
+                                     limpiar_listado_pasajero();
+                                     */
+                                    var i = 0; // cant de pasaje    
+                                    var t = '';
+                                    var pasajes = resultado.split('@');
+                                    var datos = '';
+                                    var cant = 0;
+                                    var total = 0;
+                                    for (i = 0; i < pasajes.length - 1; i++) {                                                                                                              
+                                        datos = pasajes[i].split("|");
+                                        t = t + "<tr>";
+                                        t = t + "<td >" + datos[0] + "</td>";
+                                        t = t + "<td>" + datos[1] + "</td>";
+                                        t = t + "<td>" + datos[2] + "</td>";
+                                        t = t + "<td>" + datos[3] + "</td>";
+                                        t = t + "<td>" + datos[4] + "</td>";
+                                        t = t + "<td>" + datos[5] + "</td>";
+                                        t = t + "<td>" + datos[6] + "</td>";
+                                        t = t + "<td>" + datos[7] + "</td>";
+                                        t = t + "<td>" + datos[8] + "</td>";
+                                        t = t + "<td>" + datos[9] + "</td>";
+                                        t = t + "</tr>";
+                                        cant++;
+                                        total = total + parseFloat(datos[9]);
+                                        $("#tabla_salidas").append(t);
+                                    }
+                                  
+                                     $("#e_total_listado").html(total.toFixed(2));
+                                    $("#e_cant_total").html(cant);      
+                                    // $("#t_mostrar_listado_pasajero").append(t);  
+                                    
+
+                                }
+
+
+
+
+                            });
+                        }
+                        ;
+
+
+
+
+
+
+
+
+
+                        /*TERMINARRRRR
+                         *  $fech_d = $_REQUEST["f_d"];
+                         $fech_h  = $_REQUEST["f_h"];
+                         $loc_o = $_REQUEST["lo"];
+                         $loc_d  = $_REQUEST["ld"];
+                         $tip_pago = $_REQUEST["tip_p"];
+                         $forma_p = $_REQUEST["fo_p"];
+                         
+                         */
+                        function imprimir_procesados() {
+                            if (confirm("¿Desea imprimir el listado de pasajes que estan pagos?")) {
+                                var f_d = $("#e_fecha_desde").val();
+                                var f_h = $("#e_fecha_hasta").val();
+                                var lo = $("#e_listado_localidad_origen option:selected").html();
+                                var ld = $("#e_listado_localidad_destino option:selected").html();
+                                var tip_p = $("#e_listado_tipo_pasaje option:selected").attr('value');
+                                var for_p = $("#e_listado_forma_pago option:selected").attr('value');
+                                abrir_ventana('Imprimiendo los pasajes pagos', 'imprimir_resumen_pasajes.php?fdesde=' + f_d + '&fhasta=' + f_h + '&locori=' + lo + '&ldest=' + ld + '&tipo=' + tip_p + '&forma_p=' + for_p, 600, 500);
+                            }
+                        }
+
+                    </script>
+
+                    <body>
+                        <input type="hidden" id="h_loc_or" value={v_loc_or}/> <!--  Guarda localidad de origen de la salida -->
+                        <input type="hidden" id="h_loc_de" value={v_loc_de}/> <!--  Guarda localidad de destino de la salida -->
+
+
+                        <div id="content">
+                            <!--            <font face="arial"> cambieeee el TAMAÑO DE LA TABLA VER AL IMPRIMIR-->
+
+                            <table width="100%" height="234" border="1" align="center" cellspacing="0" bordercolor="#DCDCDC" bgcolor="#FFFFFF">
+                                <tr>
+                                    <td colspan="3" align="center" bgcolor="{v_color_cabezera_tabla}" scope="col">
+                                        <b>Resumen de pasajes </b> 
+                                    </td>	
+                                </tr>
+                                <tr>
+
+
+
+                                    <br>
+                                        <!-- <form id="f_resumen_pasajes" name="f_resumen_pasajes" method="post" action="resumen_pasajes.php"> -->
+
+                                        <!--<tr> <td> Fecha desde:</td><td><b><input type="text" id="datepicker"/></b></td> </tr>
+                            
+                                        <tr><td> Fecha hasta:</td><td><b><input type="text" id="datepicker2"/> </b></td></tr>
+                                        -->
+                                        <tr>
+                                            <td>Fecha desde:</td><td>
+                                                <input type="text" size="10" name='e_fecha_desde' id="e_fecha_desde" /> 
+                                                <!-- <input type="image" name='i_fecha_desde' id="i_fecha_desde" src="imagenes/calendario.png" onclick="displayDatePicker('e_fecha_desde', false, 'dmY', '/');
+                                 return false"/> -->
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Fecha hasta:</td><td>
+                                                <input type="text" size="10" name='e_fecha_hasta' id="e_fecha_hasta" /> 
+                                                <!--<input type="image" name='i_fecha_hasta' id="i_fecha_hasta" src="imagenes/calendario.png" onclick="displayDatePicker('e_fecha_hasta', false, 'dmY', '/');
+                                return false"/>-->
+                                            </td>
+                                        </tr>
+
+                                        <tr><td>Localidad Origen:</td><td><b><select id="e_listado_localidad_origen" >{v_listado_localidad_origen}</select> </b></td></tr>
+                                        <tr><td>Localidad destino:  </td><td><b> <select id="e_listado_localidad_destino" >{v_listado_localidad_destino}</select></b></td></tr>
+
+                                        <tr><td>Tipo de Pasaje:</td><td><b> <select id="e_listado_tipo_pasaje" >{v_listado_tipo_pasaje}</select></b></td></tr>
+                                        <tr><td>Forma de Pago:</td><td><b> <select id="e_listado_forma_pago">
+                                                        <option value="0" >  Efectivo  </option>
+                                                        <option value="2">  Cta.Cte.  </option>
+                                                        <option value="3">  Cheque    </option>
+                                                        <option value="4">  Tarjeta   </option>
+                                                    </select></b></td></tr>
+
+<!--seleccionar una por defecto xq si no selecciono queda en cero -->
+
+
+
+
+                                </tr>  
+
+
+
+                                <tr align="center" valign="middle">
+                                    <td nowrap scope="col">
+                                        <!-- //*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+                                        //                   TABLA de BOTONERA
+                                        //*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* -->
+                                        <table width="394" border="0" align="center">
+                                            <tr>
+
+
+
+                                                <td>
+                                                    <input name="b_imprimir" align="center" TYPE="image" id="b_imprimir" value="imprimir" SRC="./imagenes/imprimir.png" align="left" BORDER="0" />                                        
+                                                    Imprimir
+                                                </td>
+                                                <td width="30">
+                                                    <input name="b_volver" align="center" TYPE="image" id="b_volver" value="Volver" SRC="./imagenes/volver.jpg" align="left" BORDER="0" onclick="$(location).attr('href', 'principal.php');" />
+                                                    Volver
+                                                </td>       
+                                                <td width="30">
+                                                    <input type="image" src="./imagenes/busqueda.png" border="0" name="i_buscar" id="i_buscar"  class='osx demo'/>
+                                                    Buscar Pasajes
+                                                </td>         
+                                            </tr>
+                                        </table>
+
+                                        <!-- //*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+                                        // Fin de tabla de botonera
+                                        //*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* -->      
+                                    </td>
+                                    <td colspan="1">
+                                        Sucursal:<b>{v_sucursal}</b>
+                                        <!--                    
+                                                            Codigo de Barra:
+                                                            <input name="e_codigo_barra" align="center" type="text" id="e_codigo_barra"  value="" size="15">
+                                                            <input name="b_buscar_codigo_barra" align="center" src="./imagenes/ejecutar.jpg" type="image" id="b_buscar_codigo_barra" onclick="ejecutar_busqueda_por_codigo_barra()" />               
+                                        -->
+                                    </td>
+                                    <td>
+                                        Usuario:<b>{v_vendedor}</b>
+                                    </td>
+                                </tr>
+                                <tr>   
+                                    <td colspan="3">        
+
+                                        <!--   *******************************************************************************
+                                           **   Tablas de listados pasajes               **
+                                           **                                                                           **
+                                           **                                                                           **
+                                           *****************************************************************************-->
+
+                                        <table  id="tabla_salidas" width="100%" border="1" align="center" cellpadding="0" cellspacing="0" bordercolor="#000000" bgcolor="#FFFFFF">
+                                            <thead> 
+                                                <tr>    
+                                                    <td align="center" colspan="15" bgcolor="{v_color_cabezera_tabla}" scope="col">
+                                                        <br><b>Pasajes Pagos </b>
+                                                    </td>    
+                                                </tr>  
+                                                <tr bgcolor="{v_color_cabezera_columna_tabla}">
+
+                                                    <td align="center" >Nro. Pasaje     </td>
+                                                    <td align="center" >Fecha Viaje        </td>
+                                                    <td align="center"  >Pasajero    </td>
+                                                    <td align="center"  >DNI Pasajero </td>
+                                                    <td align="center"  >Dirección Destino </td>
+                                                    <td align="center"  >Pasajero Asegurado    </td>
+                                                    <td align="center"  >DNI Pasajero Asegurado </td>
+                                                    <td align="center"  >Nro.Cheque       </td>
+                                                    <td align="center"  >Importe Cheque     </td>
+                                                    <td align="center"  >Total Pagado       </td> 
+                                                    <td >                             </td>
+                                                </tr>  
+                                            </thead>
+                                            <tbody><!-- ESTO LO CARGA DE resumen_pasages.php haciendo set_var('v_pasajes_pagos',$t_pasajes_pagos) -->
+
+                                            </tbody> 
+
+                                        </table>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr colspan="2">
+  
+                                     <td>Total Pagado de este listado:$
+                                       <span id="e_total_listado">{v_total_listado}</span></td>    
+                                    
+                                         <td>Cantidad total de pasajes:
+                                        <span id="e_cant_total">{v_cant_total}</span></td>    
+                                    
+                                </tr>
+                            </table>
+                            <!--            </font> -->
+                        </div>  
+                    </body>
+                    </html>

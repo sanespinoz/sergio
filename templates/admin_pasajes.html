@@ -35,7 +35,7 @@ $(document).ready(function(){
              $('#i_seleccionar_vehiculo'    ).click(function(){ seleccionar_vehiculo();});
              $('#i_seleccionar_chofer'      ).click(function(){ seleccionar_chofer();  });
              $('#i_pagar_pasaje'            ).click(function(){pagar_pasajes();       });             
-             $('#i_pasaje_adelantado'       ).click(function(){pasaje_adelantado();   });
+             $('#i_pasaje_adelantado'       ).click(function(){abrir_ventana('Pasajes por adelantado...','pasajes_adelantados.php',737,940);     });
              
              // Realizamos las busqeda de las salidad diarias para la fecha pertinente
              buscar_salidas();             
@@ -45,41 +45,52 @@ $(document).ready(function(){
 //------------------------------------------------------------------------------
 // Reserva pasajes para un cliente determinado sin uso.
 //------------------------------------------------------------------------------
-        function pasaje_adelantado(){
+    //    function pasaje_adelantado(){
             
-                var nro_asiento = $('#sp_nro_asiento').html();
-                var id_viaje    = $('#sp_nro_viaje').html();
-                var deuda       = $('#sp_importe_pasaje').html();
+      //          var nro_asiento = $('#sp_nro_asiento').html();
+       //         var id_viaje    = $('#sp_nro_viaje').html();
+        //        var deuda       = $('#sp_importe_pasaje').html();
                 
 //                if((id_viaje>0)&&(nro_asiento>0)){
-                    abrir_ventana('Pasajes por adelantado...','pasajes_adelantados.php',737,940);                       
+     //               abrir_ventana('Pasajes por adelantado...','pasajes_adelantados.php',737,940);                       
                 
 //                }                                      
-        };
+   //     };
 
 
 
 //------------------------------------------------------------------------------
 // Realiza el pago de los pasajes que se encuentran reservados
 //------------------------------------------------------------------------------
-          function pagar_pasajes(){
-                var nro_asiento = $('#sp_nro_asiento').html();
-                var id_viaje    = $('#sp_nro_viaje').html();
+        function pagar_pasajes(){
+            // si tenemos un asiento seleccionado y se encuentra en estado reservado 
+            var nro_asiento = $('#sp_nro_asiento').html();
+            var id_viaje    = $('#sp_nro_viaje').html();
+            debugger;
+            if((id_viaje>0)&&(nro_asiento>0)){
                 var deuda       = $('#sp_importe_pasaje').html();
                 var imp_pasaje = $('#h_importe_deuda_pasaje').val();
-                //alert(nro_asiento);
-                //alert(id_viaje);
-                if((id_viaje>0)&&(nro_asiento>0)){
+                var imp_cooseguro = $('#h_importe_coseguro_pasaje').val();
+                var nro_pasaje = $("#sp_nro_pasaje").html();
+                
+                    //alert(id_viaje);
+                if ($("#h_pasaje_reservado").val()=='R'){               
                     abrir_ventana('Seleccionar Vehiculo...',
-                       'pagar_pasaje.php?code='+nro_asiento+'&id_v='+id_viaje+'&deuda='+deuda+'&importe_pasaje='+imp_pasaje,
-                       300,
-                       600); 
+                        'pagar_pasaje.php?code='+nro_asiento+'&id_v='+id_viaje+'&deuda='+deuda+'&importe_pasaje='+imp_pasaje
+                        +'&importe_coseguro='+imp_cooseguro+'&destino='+$('#h_destino').val()+'&fecha='+$('#e_fecha').val()
+                        +'&hora='+$('#h_hora_salida').val()+'&nro_pasaje='+id_viaje+"-"+nro_pasaje,
+                        430,
+                        700); 
                       
                 }else{
-                    alert('Debe seleccionar un viaje previamente...');
-                }          
-            };
+                    mensaje_error("Admin Pasaje",'El pasaje ya se ecuentra abonado...');
+                }    
+            }else{
+                mensaje_error("Admin Pasaje",'Debe seleccionar un viaje previamente...');
+            }
+        };
        
+
 
 
 
@@ -87,7 +98,7 @@ $(document).ready(function(){
 // Agrega un vehiculo al viaje seleccionado
 //------------------------------------------------------------------------------
           function seleccionar_vehiculo(){
-                if($('#h_id_viaje').val()>0){
+                if($('#h_id_viaje').val()>0){//ne lo carga solo 
                     abrir_ventana('Seleccionar Vehiculo...',
                        'seleccion_vehiculo.php?code='+$('#h_id_vehiculo').val()+'&id_v='+$('#h_id_viaje').val()+'&c_ao='+$('#h_nro_asiento_ocupado').val()+'&c_ar='+$('#h_nro_asiento_reservado').val()+'&destino='+$('#h_destino').val()+'&fecha='+$('#e_fecha').val()+'&hora='+$('#h_hora_salida').val(),
                        375,
@@ -866,7 +877,7 @@ $(document).ready(function(){
     <input id='h_destino' type="hidden"/>
     <input id='h_color_foco' type="hidden" value="{v_color_foco}"/>
     <input id="h_pasaje_ida_y_vuelta" type='hidden' value="N"/>
-    <input id='h_crear_salidas_automaticamente' type="hidden" value="{v_desicion_de_crear_salidas}"/>
+    <input id='h_crear_salidas_automaticamente' type="hidden" value="{v_desicion_de_crear_salidas}"/><!-- php le envia valor 1 --!>
     <input id='h_color_seleccionado' type="hidden" value="{v_color_seleccionado}"/>     
     
 </span>
@@ -962,7 +973,7 @@ $(document).ready(function(){
                             <td align='Center'>Loc.Destino</td>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody><!-- ESTO LO CARGA DE admin_pasajes.php haciendo set_var('v_salidas',$t_salidas) -->
 			{v_salidas}
                     </tbody>
                 </table>

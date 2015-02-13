@@ -14,9 +14,9 @@ define('FECHA_MODI_SISTEMA','23/10/2014');
 // ---------------------------------------------------------------------
 define('HOST', '127.0.0.1');
 define('USUARIO', 'root');
-define('PASSWORD', '');
-define('BASE', 'prueba');
-define('PUERTO', '3050');
+define('PASSWORD', 'root');
+define('BASE', 'marciano');
+define('PUERTO', '3306');
 define('TIPOBASE', 'mysql');
 //----------------------------------------------------------------------
 define('DELIMITACION_FECHA','/');
@@ -27,7 +27,7 @@ define('PORCENTAJE_SEGURO_ENCOMIENDA',2); // Representa el valor en porcentaje d
 define('PORCENTAJE_IVA_ENCOMIENDA',21); // Representa el valor en porcentaje del iva a aplicar a las encomienda.
 define('PRIORIDAD', serialize(array('URGENTE','RAPIDO','NORMAL','BAJO')));
 define('TIPO_RESPONSABLES', serialize(array('Responsable Inscripto','Monotributo','Exento','Consumidor Final')));
-
+define('PORCENTAJE_INTERES_TARJETA',10); // Representa el valor en porcentaje del interes de a aplicar en el pago por tarjetas.
 //------------------------------------------------------------------------------
 // Configuración de membrete de las impresiones
 //------------------------------------------------------------------------------
@@ -86,6 +86,13 @@ define('COLOR_VIAJE_DIARIO_LISTADO','#E2A5B8');
 define('COLOR_VIAJE_ESPECIAL_LISTADO','#A5E2AD');
 define('COLOR_FONDO_CARGA_DATOS_PASAJE_ORIGEN',"#F2F5A9");
 define('COLOR_FONDO_CARGA_DATOS_PASAJE_DESTINO','#D0F5A9'); 
+//-------------------------------------------------------------------------------------------------
+// CONFIGURACION DE COLORES DE BOTONERA DE MANDO
+//-------------------------------------------------------------------------------------------------
+define('COLOR_FONDO_BOTONERA_MANDO',"#F2F5A9");
+define('COLOR_FONDO_BOTON_MANDO','#fff'); 
+define('COLOR_TEXTO_BOTON_MANDO','#333'); 
+
 
 //********************************************************************************************************
 //********************************************************************************************************

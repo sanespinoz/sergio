@@ -25,7 +25,7 @@ class HTML2PDF_parsingHtml
      * @param   string encoding
      * @access  public
      */
-    public function __construct($encoding = 'UTF-8')
+    public function __construct($encoding = 'utf-8')
     {
         $this->_num   = 0;
         $this->_level = array($this->_num);

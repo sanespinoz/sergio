@@ -90,7 +90,7 @@ if (!$res) {
     // cargamos lo obtenido en las variables
     $id_loc_remit_desde = $res->fields[1];
     $id_loc_dest_desde  = $res->fields[2];
-    $id_prov_orig       = $res->fields[3];
+    $id_prov_orig       = $res->fields[3]; //cf.id_provincia_origen_encomienda
 }
 
 //----------------------------------------------------------------------------------------------------

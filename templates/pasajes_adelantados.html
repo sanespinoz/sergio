@@ -1,6 +1,6 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <title>Pasajes por adelantados</title>        
             
         <link type='text/css' href='css/demo.css'    rel='stylesheet' media='screen'/>
@@ -8,12 +8,15 @@
         <link type="text/css" href="css/estilos.css" rel="stylesheet" /> <!-- Estilos de la tabla -->
         <link href="css/datepicker.css" type=text/css rel=stylesheet>
         <!-- OSX Style CSS files -->
-        <link type='text/css' href='css/osx.css' rel='stylesheet' media='screen' >          
+        <link type='text/css' href='css/osx.css' rel='stylesheet' media='screen' >       
+       <link rel="stylesheet" type="text/css" href="./js/sweetalert-master/lib/sweet-alert.css">
     </head>   
 <!-- Page styles -->
 <script type="text/javascript" src="./js/jquery-1.3.2.js"></script>
 <script type="text/javascript" src="./js/propias.js"></script>
 <script type="text/javascript"  src="./js/datepicker.js"></script>
+<script src="./js/sweetalert-master/lib/sweet-alert.min.js"></script> 
+
 
 
 <!-- Scrip para las pantallas desplegables -->       
@@ -21,38 +24,23 @@
 <script type='text/javascript' src='./js/osx.js'></script>   
 
 <script type="text/javascript">
-    
-        var carg_cliente = true; // true = remitente; false = destinatario    
-        
-        $(document).ready(function(){                
-             $("#i_alta_destinatario"  ).click(function(){ abrir_ventana('Alta de clientes','./abm/abm_clientes.php',400,600); });
-             $("#i_buscar_destinatario").click(function(){  });
-             //---------------------------------------------------------------------------------------------------
-             //----------------  botones en forma des pagos  -----------------------------------------------------
-             //---------------------------------------------------------------------------------------------------
-             $("#carga_datos_pagos"      ).css('background-color',"#F5ECCE");
-             
-             $("#e_forma_de_pago_contado").change( function() { seleccionar_forma_de_pagos(); });
-             $("#e_forma_de_pago_ctacte" ).change( function() { seleccionar_forma_de_pagos(); });
-             $("#b_agregar_pago"         ).click(function(){agregar_pago_al_listado_de_pago();      });
-             $("#b_vaciar_la_tabla_pago" ).click(function(){vaciar_tabla_pago();         });
-             $("#b_eliminar_pago"        ).click(function(){eliminar_pago_al_listado_pago();        });
 
-             $("#e_buscar_cliente_ctacte").mouseover( function(){carg_cliente = 2;}); // busqueda de cliente de cta. cte.
-             $("#e_alta_cliente_ctacte"  ).click(function(){abrir_ventana('Alta de clientes','./abm/abm_clientes.php',400,600); });
-             $("#e_alta_banco_ctacte"    ).click(function(){abrir_ventana('Alta de bancos'  ,'./abm/abm_bancos.php',  400,600); });
+        var carg_cliente = true; // true = remitente; false = destinatario        
+        $(document).ready(function(){                             
                 
-             //----------------------------------------------------------------------------------------------------
-             //                                   botonera de mando final.
-             //----------------------------------------------------------------------------------------------------
-             
-             $("#e_tipo_pasaje" ).change(function(){ realizar_calculo_de_precio(); });
-             $("#e_cantidad"    ).change(function(){ realizar_calculo_de_precio(); });
-             $("#e_importe_pago").change(function(){ realizar_calculo_de_precio(); });
-             //--------------------------------------------------------------------------------------------------
-             // eventos de la busqueda de clientes
-             //--------------------------------------------------------------------------------------------------
-             //$("#e_buscar_remitente").     mouseover( function(){carg_cliente = 0;}); // busqueda de remitente
+               // var asientos = new array();
+                //$("#i_escribir_siguiente_pasaje" ).click( function() {cargar_datos_base_a_otro_pasaje();});//guarda en la bd
+                $("#i_vaciar_pasaje" ).click( function() {vaciar_pasaje();});
+                $("#e_tipo_pasaje").change( function() {seleccionar_tipo_pasaje();});
+               // $("#e_tipo_pasaje").change( function() {seleccionar_tipo_pasaje();});
+                
+                $('#e_coseguro_pasaje > option[value="N"]').attr('selected', 'selected');
+                $("#e_coseguro_pasaje").change(function(){cambiar_estado_cooseguro();});       
+                
+                //--------------------------------------------------------------------------------------------------
+                // eventos de la busqueda de clientes
+                //--------------------------------------------------------------------------------------------------
+                //$("#e_buscar_remitente").     mouseover( function(){carg_cliente = 0;}); // busqueda de remitente
                 $("#e_buscar_destinatario").  mouseover( function(){             
                     carg_cliente = 1;
                     //$('#e_buscar').focus();
@@ -71,29 +59,124 @@
                         }                        
                 });
 
+//------------------------------------------------------------------------------
+// Obtenemos el precio del pasaje y depositamos en el edit de precio
+//------------------------------------------------------------------------------
+        function seleccionar_tipo_pasaje(){
+                 $("#e_importe_pasaje").attr("disabled",true);
+                 //$("#h_operacion_tipo_pasaje").val();
+                 var cad = $("#e_tipo_pasaje option:selected").html();
+                 var subcad = cad.substring(cad.indexOf(' - $')+5, cad.length);
+
+                 var cad2 = $("#e_tipo_pasaje option:selected").attr('value');
+                 var subcad2 = cad2.substring(cad2.indexOf('#')+1, cad2.length);
+                 
+                 var aux = parseFloat(subcad);
+                 $("#e_importe_pasaje").val(aux.toFixed(2));                 
+                 
+                 $("#h_operacion_selec_tipo_pasaje").val(subcad2[1]); // indica si es una impresion doble o no
+                 
+                 var aux3 = 0;
+                 // si esta tildada la opcion de coseguro hacer calculo de coseguro
+                 if($("#e_coseguro_pasaje").val()=='S'){
+                    var aux2 = calculo_coseguro();
+                    aux3 = aux + aux2;
+                }else{
+                    aux3 = aux;
+                }
+                
+                $("#e_importe_pago").val( aux3.toFixed(2) ); // se agrega en la sexion de carga de importe de pagos.                                  
+                $("#h_importe_deuda_pasaje").val($("#e_importe_pago").val());
+        }
+            
+        //-----------------------------------------------------------------------------------------    
+    // realizamos la sumatoria de factores que hacen al calculo de un precio de pasaje a pagar.
+    //-----------------------------------------------------------------------------------------
+        function calculo_precio(){
+            var i_c = 0.00; // importe del coseguro
+            var i_p = 0.00; // importe del pasaje
+            var i_pg = 0.00; // importe del pago acumulado.
+            var res = 0.00; // valor del importe del pasaje + importe del coseguro  - pagos realizados
+            
+            i_c = parseFloat($("#e_importe_coseguro_pasaje").val()).toFixed(2);
+            i_p = parseFloat($("#e_importe_pasaje").val()).toFixed(2);
+            i_pg = parseFloat($("#h_total_pago").val()).toFixed(2);
+            
+            
+        res = i_p + i_c - i_pg;
+            
+            $("#e_importe_pago").val(res);
+        }
+        
+
+                //--------------------------------------------------------------------------------------------------
+                //----------------  eventos de la Alta de clientes -------------------------------------------------
+                //--------------------------------------------------------------------------------------------------
+                $("#i_alta_destinatario"   ).click(function(){abrir_ventana('Alta de clientes','./abm/abm_clientes.php',400,600); });
+                
+                
+                
+                //---------------------------------------------------------------------------------------------------
+                //----------------  botones en forma des pagos  -----------------------------------------------------
+                //---------------------------------------------------------------------------------------------------
+                $("#carga_datos_pagos").css('background-color',"#F5ECCE");
+                $("#e_forma_de_pago_contado" ).change( function() { seleccionar_forma_de_pagos(); });
+                $("#e_forma_de_pago_ctacte"  ).change( function() { seleccionar_forma_de_pagos(); });
+                //$("#e_forma_de_pago_cheque"  ).change( function() { seleccionar_forma_de_pagos(); });
+                //$("#e_forma_de_pago_destino" ).change( function() { seleccionar_forma_de_pagos(); });
+
+                $("#b_agregar_pago"  ).click(function(){agregar_pago_al_listado_de_pago();      });
+                $("#b_vaciar_la_tabla_pago"     ).click(function(){vaciar_tabla_pago();         });
+                $("#b_eliminar_pago" ).click(function(){eliminar_pago_al_listado_pago();        });
+
+                $("#e_buscar_cliente_ctacte").mouseover( function(){carg_cliente = 2;}); // busqueda de cliente de cta. cte.
+                $("#e_alta_cliente_ctacte" ).click(function(){abrir_ventana('Alta de clientes','./abm/abm_clientes.php',400,600); });
+                $("#e_alta_banco_ctacte"   ).click(function(){abrir_ventana('Alta de bancos'  ,'./abm/abm_bancos.php',  400,600); });
+                
+                //----------------------------------------------------------------------------------------------------
+                //                                   botonera de mando final.
+                //----------------------------------------------------------------------------------------------------
+                $("#i_aceptar").click(function() {escribir_pasajes_adelantados();   });
+                $("#i_cancelar").click(function(){cerrar_ventana();      });    
+                
+                 //----------------------------------------------------------------------------------------------------
+             //                                   botonera de mando final.
+             //----------------------------------------------------------------------------------------------------
              
-             $("#i_aceptar_pasaje_adelantado").click(function(){escribir_pasajes_adelantados(); });
-             $("#i_cancelar_pasaje_adelantado").click(function(){ cerrar_ventana(); });
-             
+             $("#e_tipo_pasaje" ).change(function(){ realizar_calculo_de_precio(); });
+             $("#e_cantidad"    ).change(function(){ realizar_calculo_de_precio(); });
+             $("#e_importe_pago").change(function(){ realizar_calculo_de_precio(); });
              
         });
         //----------------------------------------------------------------------
         // Escribe la tabla de pasajes adelantados
         //----------------------------------------------------------------------
         function escribir_pasajes_adelantados(){
-               if (confirm("¿Segúro de crear los pasajes?")){
-                   
+            if(validar_carga_pasaje()){
+              // if (confirm("Desea crear los pasajes?")){
+                swal({   title: "Desea crear los pasajes?",  
+                      
+                    type: "warning",  
+                    showCancelButton: true,   
+                    confirmButtonColor: "#DD6B55",   
+                    confirmButtonText: "Crear pasajes!",
+                    closeOnConfirm: false }, 
+                function(){ 
+                 
                     var parametros = {
                            f_d    : $("#e_fecha_desde").val(),
                            f_h    : $("#e_fecha_hasta").val(),                           
-                           id_cli : $("#h_id_cliente").val(),
+                           id_cliente : $("#h_id_cliente").val(),
                            observ : $("#e_observaciones").val(),
                            cant   : $("#e_cantidad").val(),
-                           total  : $("#e_total_pasaje_adelantado").val()
+                           total  : $("#e_mostrar_pago").val(),
+                          raz : $("#e_nombre_pasaje").val(),
+                           tipo_pas :$("#e_tipo_pasaje option:selected").attr('value'),
+                           llamado_por: 1
                                      };                                                   
                     $.ajax({
                            data: parametros,
-                           url : 'ajax_crear_pasajes_adelantados.php',
+                           url : 'pagar_pasajead.php',//DEBERIA IRME A PAGAR_PASAJES.PHP! url : 'ajax_crear_pasajes_adelantados.php'
                            type: 'post',
                            
                            beforeSend: function () {
@@ -101,17 +184,23 @@
                                                    },
                                                   
                            error: function (resultado){
-                               alert('Error en el procesamiento de la rutina ajax_crear_pasajes_adelantados');
+                               alert(resultado);
+                              // alert('Error en el procesamiento de la rutina ajax_crear_pasajes_adelantados');
                                                       },                                                                           
                                                        
                            success: function (resultado){
-                               alert("Se crearon con exito...");
-                               cerrar_ventana();
-                                                        }                           
-                    });                    
+                               swal("Se creo con éxito!");
+                          //window.close();  no se va la ventana!!
+                                                        }
+                                                          
+                        
+                    });                              
+                    }); 
+                   
                 }
-            
-        }
+            //}
+           
+       }
         //----------------------------------------------------------------------
         // obtenemos el precio del tipo de pasaje seleccionado y lo multiplicamos 
         // por la cantidad de pasaje a comprar por adelantado
@@ -136,21 +225,17 @@
            }
         };
         
-        //----------------------------------------------------------------------
-        // eventos de la busqueda de clientes
-        //----------------------------------------------------------------------
-        $("#e_buscar_destinatario").  mouseover( function(){carg_cliente = 1;}); // busqueda de destinatario
-        $("#e_buscar_cliente_ctacte").mouseover( function(){carg_cliente = 2;}); // busqueda de cliente de cta. cte.
+        
                 
-        $("#b_aceptar_clientes"    ).click(function(){seleccionar_cliente_buscado(carg_cliente); });
-        $("#b_buscar"              ).click(function(){buscar_clientes();                         });     
+        
+           
         
         
         //----------------------------------------------------------------------
         // Cierra la ventana 
         //----------------------------------------------------------------------
         function cerrar_ventana(){
-            if (confirm('¿Segúro de cancelar la carga de pasajes adelantados?'))
+            if (confirm('Desea cancelar la carga de pasajes adelantados?'))
                 window.close();
         }
         //----------------------------------------------------------------------
@@ -159,7 +244,70 @@
         function crear_pasajes_adelantados(){
             
         }
-        
+           //------------------------------------------------------------------------------------------
+            // realizamos las validaciones correspondientes para guardar los pasajes en la base de datos
+            //------------------------------------------------------------------------------------------
+          function validar_carga_pasaje(){                 
+                 var mensaje = '';
+               /*var fech1 = document.getElementById(e_fecha_desde).value;
+                var fech2 = document.getElementById(e_fecha_hasta).value;*/
+                if($("#e_nombre_pasaje").val()=='')
+                    {
+                        swal("Debe Seleccionar o Agregar un pasajero!");
+                        mensaje = "Debe ingresar el apellido y el nombre completo del pasajero...";
+                    $("#e_nombre_pasaje").focus();
+                    $("#e_nombre_pasaje").css({ 'background': 'red' });
+                }else{
+                    $("#e_nombre_pasaje").css({ 'background': '#ffffff' });                    
+                }
+                
+                if($("#e_fecha_desde").val() > $("#e_fecha_hasta").val())
+                    {
+                        swal("Debe Seleccionar una fecha mayor a  Fecha Desde!");
+                        mensaje = "Debe Seleccionar una fecha mayor a  Fecha Desde...";
+                    $("#e_fecha_hasta").focus();
+                    $("#e_fecha_hasta").css({ 'background': 'red' });
+                }else{
+                    $("#e_fecha_hasta").css({ 'background': '#ffffff' });                    
+                }
+                
+                if(Number($("#e_importe_pasaje").val())<=0){
+                    swal("Debe seleccionar el tipo de pasajes!");
+                    mensaje = "Debe seleccionar el tipo de pasajes..."; 
+                    $("#e_tipo_pasaje").focus();
+                    $("#e_tipo_pasaje").css({ 'background': 'red' });
+                }else{
+                    $("#e_tipo_pasaje").css({ 'background': '#ffffff' });                    
+                }
+       
+                  /*if((Date.parse(fech1)) > (Date.parse(fech2))){
+  mensaje = "Debe seleccionar una fecha posterior..."; 
+                    $("#e_feha_hasta").focus();
+                    $("#e_fecha_hasta").css({ 'background': 'red' });
+                }else{
+                    $("#e_fecha_hasta").css({ 'background': '#ffffff' });                    
+                } 
+                
+                 /* if((Date.parse(fech1)) > (Date.parse(fech2))){
+alert(Ҍa fecha inicial no puede ser mayor que la fecha finalҩ;
+}
+                  * 
+                  * if(Number($("#e_fecha_desde")<$("#e_fecha_hasta")){
+                    mensaje = "Debe seleccionar una fecha posterior..."; 
+                    $("#e_feha_hasta").focus();
+                    $("#e_fecha_hasta").css({ 'background': 'red' });
+                }else{
+                    $("#e_fecha_hasta").css({ 'background': '#ffffff' });                    
+                }    
+         */
+                
+                if (mensaje==''){
+                    return true;
+                }else{
+                   // alert(mensaje);
+                    return false;                    
+                }                        
+             }
         //----------------------------------------------------------------------
         // devuelve lo encontrado al precionar el boton aceptar del buscador de 
         // clientes
@@ -188,15 +336,15 @@
                         // completamos lo de destinatario        
                         $("#h_id_cliente" ).             val(res1[1]);
                         
-                        $("#e_dni_pasaje").              val(res1[2]);
-                        $("#e_nombre_pasaje").           val(res1[3]);
-                        $("#e_direccion_origen_pasaje"). val(res1[4]);
-                        $("#e_direccion_destino_pasaje").val(res1[6]);
-                        $("#e_telefono_origen_pasaje").val(res1[7]); //-> 9
+                       // $("#e_dni_pasaje").              val(res1[2]);
+                        $("#e_nombre_pasaje").           val(res1[8]);
+                     //   $("#e_direccion_origen_pasaje"). val(res1[4]);
+                      //  $("#e_direccion_destino_pasaje").val(res1[6]);
+                       // $("#e_telefono_origen_pasaje").val(res1[7]); //-> 9
                         
-                        if (confirm("¿Autocompletar los datos de destino?")){
-                            buscar_destinos_comunes_de_clientes(res1[1]);
-                        }
+                       // if (confirm("ࠁutocompletar los datos de destino?")){
+                        //    buscar_destinos_comunes_de_clientes(res1[1]);
+                       // }
                     }else{
 
                         // completamos lo de forma de pago
@@ -326,124 +474,128 @@
                      return aux;
             }
         
-//-----------------------------------------------------------------------------------
+ //-----------------------------------------------------------------------------------
 // Completa el listado de pagos asociadas a la guia de encomienda.
 // accion: registra el pago, contado, o cta. cte., o cheques. Incrementando el 
 //          total de pagos.
 //-----------------------------------------------------------------------------------
             function agregar_pago_al_listado_de_pago(){
-                
+                // verificamos que se halla seleccionado el tipo de pasaje y su 
+                // importe correspondiente.
                 if ($("#e_importe_pasaje").val()>0){
                 
-                // Si el importe a agregar es mayor que cero
-                var importe = $("#e_importe_pago").val();
+                    // Si el importe a agregar es mayor que cero
+                    var importe = parseFloat($("#e_importe_pago").val()).toFixed(2);
             
-                if (importe>0) {                    
-                    var dato_pago = '';
-                    var a0 = parseInt( $("#h_cantidad_pago").val() ) + 1;
-                    var a1 = 0.00;
-                    var a2 = 0.00;
-                    var a3 = 0.00;
-                    var detalle_pago = '';
+                    if (importe>0) {                    
+                        var dato_pago = '';
+                        var a0 = parseInt( $("#h_cantidad_pago").val() ) + 1;
+                        var a1 = 0.00;
+                        var a2 = 0.00;
+                        var a3 = 0.00;
+                        var detalle_pago = '';
                     
-                    var carga_correcta_cheque = 'S';
-                    var carga_correcta_ctacte = 'S';
+                        var carga_correcta_cheque = 'S'; // bandera, indica si se cargo todos los datos de cheques
+                        var carga_correcta_ctacte = 'S'; // bandera, indica si se cargo todos los datos de la ctacte
                     
-                    //---------------------------------------------------------------------------------------------------------------------
-                    // juntamos los datos para guardarlo en el objeto h_detalle_pago
-                    // si es de contado y ctacte se completaran los espacios con ' '.                    
-                    //---------------------------------------------------------------------------------------------------------------------
-                    if ($("#e_forma_de_pago_contado").is(":checked")) {
-                        detalle_pago = 'Efectivo';
-                        dato_pago = '1#'+importe+'# # # # # # # # '; // completamos los espacios
-                    }else{
-                        if ($("#e_forma_de_pago_cheque").is(":checked")) {                             
-                            //-----------------------------------------------------
-                            // validamos los datos correctos para la carga de cheques
-                            if (validar_carga_de_cheque()){
+                        //---------------------------------------------------------------------------------------------------------------------
+                        // juntamos los datos para guardarlo en el objeto h_detalle_pago
+                        // si es de contado y ctacte se completaran los espacios con ' '.                    
+                        //---------------------------------------------------------------------------------------------------------------------
+                        if ($("#e_forma_de_pago_contado").is(":checked")) {
+                            detalle_pago = 'Efectivo';
+                            dato_pago = '1#'+importe+'# # # # # # # # '; // completamos los espacios
+                        }else{
+                            if ($("#e_forma_de_pago_cheque").is(":checked")) {                             
+                                //-----------------------------------------------------
+                                // validamos los datos correctos para la carga de cheques
+                                if (validar_carga_de_cheque()){
                                
-                                detalle_pago = 'Cheque Nro: '+$("#e_cheque_nro_cheque").val();    
-                                dato_pago = '2#'+importe+'#'+$("#e_cheque_fecha_emision").val()+'#'+$("#e_cheque_fecha_cobro").val()+'#'+
-                                    $("#e_cheque_nro_cheque").val()+'#'+$("#e_cheque_operacion").val()+'#'+
-                                    $("#e_cheque_a_nombre_de").val()+'#'+$("#e_recibido_de").val()+'#'+$("#e_cheque_banco").val()+'#'+$("input:radio[name=e_cheque_propio]:checked").val();
+                                    detalle_pago = 'Cheque Nro: '+$("#e_cheque_nro_cheque").val();    
+                                    dato_pago = '2#'+importe+'#'+$("#e_cheque_fecha_emision").val()+'#'+$("#e_cheque_fecha_cobro").val()+'#'+
+                                        $("#e_cheque_nro_cheque").val()+'#'+$("#e_cheque_operacion").val()+'#'+
+                                        $("#e_cheque_a_nombre_de").val()+'#'+$("#e_recibido_de").val()+'#'+$("#e_cheque_banco").val()+'#'+$("input:radio[name=e_cheque_propio]:checked").val();
                             
-                                carga_correcta_cheque = 'S';
-                            }else{
-                                carga_correcta_cheque = 'N';
-                            }
-                            
-                            
-                         }else{
-                            if ($("#e_forma_de_pago_ctacte").is(":checked")) {
-                                if (validar_carga_de_ctacte()){
-                                   detalle_pago = 'Cta. Cte.: '+$("#e_cliente_ctacte").val();
-                                   dato_pago = '3#'+importe+'#'+$("#h_id_cliente_ctacte").val()+'# # # # # # # '; // completamos los espacios
-                                   carga_correcta_ctacte = 'S';
-                                }else{    
-                                   carga_correcta_ctacte = 'N'; 
-                                }
-                            }else{
-                                if (validar_pago_destino()){                            
-                                    detalle_pago = 'Pago Dest.';
-                                    dato_pago = '4#'+importe+'# # # # # # # # '; // completamos los espacios
-                                    carga_correcta_pago_destino = 'S';
+                                    carga_correcta_cheque = 'S';
                                 }else{
-                                    carga_correcta_pago_destino = 'N';
+                                    carga_correcta_cheque = 'N';
                                 }
+                            
+                            
+                            }else{
+                                if ($("#e_forma_de_pago_ctacte").is(":checked")) {
+                                    if (validar_carga_de_ctacte()){
+                                        detalle_pago = 'Cta. Cte.: '+$("#e_cliente_ctacte").val().toFixed(2);
+                                        dato_pago = '3#'+importe+'#'+$("#h_id_cliente_ctacte").val().toFixed(2)+'# # # # # # # '; // completamos los espacios
+                                        carga_correcta_ctacte = 'S';
+                                    }else{    
+                                        carga_correcta_ctacte = 'N'; 
+                                    }
+                                }else{
+                                    if (validar_pago_destino()){                            
+                                        detalle_pago = 'Pago Dest.';
+                                        dato_pago = '4#'+importe+'# # # # # # # # '; // completamos los espacios
+                                        carga_correcta_pago_destino = 'S';
+                                    }else{
+                                        carga_correcta_pago_destino = 'N';
+                                    }
                                 
+                                }
                             }
-                         }
-                     }
+                        }
                     
                     
-                    //------------------------------------------------------------------------------------------------------
-                    // verificamos que las variables de control de ingreso de dato para el pago correspondiente esten en 'S'
-                    //------------------------------------------------------------------------------------------------------
-                    if ((carga_correcta_ctacte=='S')&&(carga_correcta_cheque=='S')){
+                        //------------------------------------------------------------------------------------------------------
+                        // verificamos que las variables de control de ingreso de dato para el pago correspondiente esten en 'S'
+                        //------------------------------------------------------------------------------------------------------
+                        if ((carga_correcta_ctacte=='S')&&(carga_correcta_cheque=='S')){
                        
-                        //---------------------------------------------------------------------------------------------------------------------                   
-                        var strNueva_Fila='<tr bgcolor="aaeeff">'+
-                         '   <td align="left"><INPUT type="checkbox" NAME="chk2"></input></td>'+                                                
-                                     '   <td align="center">'+detalle_pago+'</td>'+
-                                     '   <td align="center">$'+$("#e_importe_pago").val()+'</td>'+
+                            //---------------------------------------------------------------------------------------------------------------------                   
+                            var strNueva_Fila='<tr bgcolor="aaeeff">'+
+                                '   <td align="left"><INPUT type="checkbox" NAME="chk2"></input></td>'+                                                
+                                '   <td align="center">'+detalle_pago+'</td>'+
+                                     '   <td align="center">$ '+importe+'</td>'+
                                      '   <td style="display:none" id="id0">'+dato_pago+'</td></tr>';                        
                              
-                        var objTabla=$('#t_detalle_pagos').parents().get(2);
+                            var objTabla=$('#t_detalle_pagos').parents().get(2);
                    
-                        a1 = parseFloat($("#e_importe_pago").val()).toFixed(2);   
-                        a2 = parseFloat($("#h_total_pago").val()).toFixed(2);
-                        a3 = parseFloat(a1) + parseFloat(a2);
+                            a1 = parseFloat($("#e_importe_pago").val()).toFixed(2);   
+                            a2 = parseFloat($("#h_total_pago").val()).toFixed(2);
+                            a3 = parseFloat(a1) + parseFloat(a2);
                     
-                        //agregamos la nueva fila a la tabla
-                        $(objTabla).find('tbody').append(strNueva_Fila);
-                        $("#h_cantidad_pago").val(a0);                  
-                        $("#h_detalle_pago").val();                  
-                        $("#h_total_pago"  ).val(a3);
-                        $("#e_mostrar_pago").html(a3);   
-                        $("#h_detalle_pago_venta").val();
+                            //agregamos la nueva fila a la tabla
+                            $(objTabla).find('tbody').append(strNueva_Fila);
+                            $("#h_cantidad_pago").val(a0);                  
+                            $("#h_detalle_pago").val();                  
+                            
+                            $("#e_importe_pago").val( parseFloat(
+                                    parseFloat($("#h_importe_deuda_pasaje").val()) 
+                                     - (                                        
+                                         parseFloat($("#e_importe_pago").val()) + parseFloat($("#e_mostrar_pago").html()) 
+                                        )
+                            ).toFixed(2));                            
+
+                            
+                            $("#h_total_pago"  ).val(a3.toFixed(2));
+                            $("#e_mostrar_pago").html(a3.toFixed(2));   
+                            $("#h_detalle_pago_venta").val();
                    
-                        //si el cuerpo la tabla esta oculto (al agregar una nueva fila) lo mostramos
-                        if (!$(objTabla).find('tbody').is(':visible')){
-                             //le hacemos clic al titulo de la tabla, para mostrar el contenido
-                             $(objTabla).find('caption').click();
-                        } 
+                            //si el cuerpo la tabla esta oculto (al agregar una nueva fila) lo mostramos
+                            if (!$(objTabla).find('tbody').is(':visible')){
+                                 //le hacemos clic al titulo de la tabla, para mostrar el contenido
+                                $(objTabla).find('caption').click();
+                            } 
+                           // $("#h_importe_deuda_pasaje").val($("#e_importe_pago").val().toFixed(2));                                              
+                                               
+                        }// Finalizando la verificacion de ingreso de datos
                     
-                        //$("#e_importe_pago").val("");
-                        
-                        $("#e_importe_pago").val( (parseFloat($("#h_total_acumulado").val()).toFixed(2) - parseFloat($("#e_mostrar_pago").html()).toFixed(2)).toFixed(2) );
-                        
-                        
-                        
-                        
-                    }// Finalizando la verificacion de ingreso de datos
-                    
+                    }else{
+                        alert("El importe del pago debe ser superior a 0.00...");
+                    }                 
                 }else{
-                    alert("El importe del pago debe ser superior a 0.00...");
-                }                 
-            }else{
-               alert("No se puede registrar pago si no existe deuda...");
-            }                
-        }   
+                    alert("No se puede registrar pago si no existe deuda...");
+                }                
+            }   
             
             //------------------------------------------------------------------
             //
@@ -506,53 +658,7 @@
             }
         
         
-        //-------------------------------------------------------------------------------
-        // devuelve lo encontrado al precionar el boton aceptar del buscador de clientes
-        //-------------------------------------------------------------------------------
-        function seleccionar_cliente_buscado(carg_cliente){             
-                var res = $('#h_seleccion').val(); // obtenemos (nro, dni, nombre, direccion, id_loc, localidad, id_prov, provincia, tel )               
-                var res1 = res.split("|"); 
-                
-                if (carg_cliente==0){                   
-                    // completamos lo de remitente    
-                    $("#e_dni_remitente" ).val( res1[2] );
-                    $("#e_remitente"     ).val( res1[3] );
-                    $("#e_dir_remitente" ).val( res1[4] );
-                    
-                    $("#e_loc_remitente" ).attr('value', res1[5] );
-                    $("#e_loc_remitente" ).val(res1[5]);
-                    
-                    $("#e_prov_remitente").attr('value', res1[7] ); 
-                    $("#e_prov_remitente").val(res1[8]);
-                    
-                    $("#e_tel_remitente" ).val( res1[7] );  //-> 9   
-                    
-                    // Autocompleta los datos del destinatario buscando datos en 
-                    // la tabla DESTINOS_COMUNES_CLIENTES
-                 }else{
-                    if (carg_cliente==1){                
-                        // completamos lo de destinatario        
-                        $("#h_id_cliente" ).             val(res1[1]);
-                        
-                        $("#e_dni_pasaje").              val(res1[2]);
-                        $("#e_nombre_pasaje").           val(res1[3]);
-                        //$("#e_listado_localidad_origen").val(res1[5]); //--> 6
-                        //$("#e_listado_localidad_destino").val('');
-                        $("#e_direccion_origen_pasaje"). val(res1[4]);
-                        $("#e_direccion_destino_pasaje").val(res1[6]);
-                        $("#e_telefono_origen_pasaje").val(res1[7]); //-> 9
-                        
-                        if (confirm("¿Autocompletar los datos de destino?")){
-                            buscar_destinos_comunes_de_clientes(res1[1]);
-                        }
-                    }else{
-
-                        // completamos lo de forma de pago
-                        $("#e_cliente_ctacte" ).val( res1[3] );
-                        $("#h_id_cliente_ctacte"     ).val( res1[0] );
-                 }
-                }
-        }
+      
         //------------------------------------------------------------------------------
         // Realiza la busqueda de clientes de lo escrito en el edit de busqueda por sql
 	function buscar_clientes() {                       
@@ -582,6 +688,9 @@
         <input type="hidden" id="h_detalle_pago_venta" value=''/>               <!--  usado para acumular el detalle de los pagos a pasar para la escritura de las tabla  -->
         <input type="hidden" id="h_total_acumulado" value="0"/>                 <!--  almacena el total de la venta de todos los pasaje seleccionado -->    
         <input type="hidden" id="h_id_cliente" value="0"/>                      <!--  Guarda el id del cliente seleccionado para generarles los pasajes adelantados. -->
+        <input type="hidden" id="h_seleccion" value="0"/>                       <!-- Guarda la informacion del cliente buscado con el div de busqueda -->    
+        
+        
         
     <div align="center">
         <table border="1"  align="center" cellspacing="0" bordercolor="#DCDCDC" style="width:500">
@@ -595,34 +704,39 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Nombre:</td><td>
-                        <input id="e_cliente_pasaje_adelantado" value="{v_nombre}"/>
-                            <input type="image" src="./imagenes/busqueda.png" border="0" id="i_buscar_destinatario"  class='osx demo'/>
-                            <input type="image" src="./imagenes/agregar.png"  border="0" id="i_alta_destinatario" />
+                    <td>Razón Social:</td><td>
+                        <input id="e_nombre_pasaje" disabled=false value="{v_nombre}"/>
+                            <input type="image" src="./imagenes/busqueda.png" border="0" name="i_buscar_destinatario" id="i_buscar_destinatario"  class='osx demo'/>
+                            <input type="image" src="./imagenes/agregar.png"  border="0" name="i_alta_destinatario" id="i_alta_destinatario" />
+                            
+                          
+                            
                     </td>
                 </tr>
                 
                 
                 
-                <tr>
+                
+               <tr>
                     <td>Fecha desde:</td><td>
-                    <input type="text" size="10" name='e_fecha_desde' id="e_fecha" value="{v_fecha_desde}"/> 
-                    <input type="image" name='i_fecha' id="i_fecha" src="imagenes/calendario.png" onclick="displayDatePicker('e_fecha_desde', false, 'dmY', '/'); return false"/>
+                    <input type="text" size="10" name='e_fecha_desde' id="e_fecha_desde" value="{v_fecha_desde}"/> 
+                    <input type="image" name='i_fecha_desde' id="i_fecha_desde" src="imagenes/calendario.png" onclick="displayDatePicker('e_fecha_desde', false, 'dmY', '/'); return false"/>
                     </td>
                 </tr>
                 <tr>
                     <td>Fecha hasta:</td><td>
-                    <input type="text" size="10" name='e_fecha_hasta' id="e_fecha" value="{v_fecha_hasta}"/> 
-                    <input type="image" name='i_fecha' id="i_fecha" src="imagenes/calendario.png" onclick="displayDatePicker('e_fecha_hasta', false, 'dmY', '/'); return false"/>
+                    <input type="text" size="10" name='e_fecha_hasta' id="e_fecha_hasta" value="{v_fecha_hasta}"/> 
+                    <input type="image" name='i_fecha_hasta' id="i_fecha_hasta" src="imagenes/calendario.png" onclick="displayDatePicker('e_fecha_hasta', false, 'dmY', '/'); return false"/>
                     </td>
                 </tr>
+
                 
                 
                 <tr><td>Tipo Pasaje:        </td><td><b> <select id="e_tipo_pasaje">{v_listado_tipo_pasaje}> </select> </b></td></tr>
 
                 <tr><td>Cantidad:</td><td><input id="e_cantidad" type="number" value="{v_cantidad}"/> </td></tr>
                 <tr><td>Total:</td><td><input    id="e_importe_pasaje"    value="{v_total}"   /> </td></tr>
-                <tr><td>Observaciones:</td><td><textarea id="e_obaservaciones"  type="text"  value="{v_observaciones}" > </textarea> </td></tr>
+                <tr><td>Observaciones:</td><td><textarea id="e_observaciones"  type="text"  value="{v_observaciones}" > </textarea> </td></tr>
                 
             </tbody>
             <tfoot align="center">
@@ -749,12 +863,12 @@
                     <td colspan="2" align="center">
                         <div style="alignment-adjust: central; width: 150px">
                             <div style="float: left; width:50; height: 35;  font-size: 11;margin: 2;border: 1px solid #cccccc;background-color: #ffffff;">
-                                <input type="image" src="./imagenes/ok.png" value="imprimir" id="i_aceptar_pasaje_adelantado">
+                                <input type="image" src="./imagenes/ok.png" value="imprimir" id="i_aceptar">
                                 <br>Aceptar
                             </div>
 
                             <div style="float: left; width:50; height: 35; font-size: 11;margin: 2;border: 1px solid #cccccc;background-color: #ffffff;">               
-                                <input type="image" align='center' src="./imagenes/cancelar.gif" value="a1" id="i_cancelar_pasaje_adelantado">
+                                <input type="image" align='center' src="./imagenes/cancelar.gif" value="a1" id="i_cancelar">
                                 <br>Cancelar
                             </div>
                        </div>

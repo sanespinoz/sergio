@@ -18,72 +18,15 @@
              $('#i_cancelar'          ).click(function(){ cancelar_vehiculos(); });
              $('#e_seleccion_vehiculo').change(function(){ mostrar_vehiculo(); });
         });
-        // Guarda el id del vehiculo para agregarlo en el viaje
-        function seleccionar_vehiculo(){
-           $('#sp_patente_sel').      html($('#sp_patente').html());
-           $('#sp_nombre_sel').       html($('#sp_nombre').html());
-           $('#sp_interno_sel').      html($('#sp_interno').html());
-           $('#sp_modelo_sel').       html($('#sp_modelo').html());
-           $('#sp_nro_asientos_sel').  html($('#sp_nro_asientos').html());
-           $('#sp_fecha_tecnica_sel').html($('#sp_fecha_tecnica').html());                                                        
-        }        
-        // 
-        function deseleccionar_vehiculo(){
-           $('#sp_patente_sel').      html('');
-           $('#sp_nombre_sel').       html('');
-           $('#sp_interno_sel').      html('');
-           $('#sp_modelo_sel').       html('');
-           $('#sp_nro_asientos_sel').  html('');
-           $('#sp_fecha_tecnica_sel').html('');                                                        
-        }
-        //----------------------------------------------------------------------
-        // Acepta. Graba la asociacion de viaje con el vehiculo
-        //----------------------------------------------------------------------
-        function aceptar_vehiculos(){             
-             var aux = '';
-             aux = $("#sp_patente_sel").html();
-             
-             // verificamos que halla seleccionado un vehiculo
-                if (aux!=""){
-                    var parametros = {
-                           code : $('#sp_patente_sel').html(),
-                           nro_v: $('#h_id_viaje').val()
-                                     };                                                   
-                    $.ajax({
-                           data: parametros,
-                           url : 'ajax_seleccionar_vehiculo.php',
-                           type: 'post',
-                           
-                           beforeSend: function () {
-                               //$("#t_buscar").html("Procesando, espere por favor...");
-                                                   },
-                                                  
-                           error: function (resultado){
-                               alert('Error en el procesamiento de la rutina ajax_seleccionar_vehiculo');
-                                                      },                                                                           
-                                                       
-                           success: function (resultado){
-                                    alert("Se asocio correctamente el vehiculo...");
-                                      window.close();
-                                                        }                           
-                    });                    
-                }else{
-                    alert("Debe seleccionar un vehículo...");
-                }
-             
-        }
-        function cancelar_vehiculos(){
-           window.close();
-        }
-               
+                 
         // muestra la configuracion del vehiculo mostrado en el combobox
         function mostrar_vehiculo(){
             debugger;
             var d = $("#h_datos_vehiculos").val();               
             var patente_sel = $("#e_seleccion_vehiculo").val();
-            // si el vehicuolo es -1 significa que no selecciono un vehiculo
+            // si el vehiculo es !-1 significa que selecciono un vehiculo
             if (patente_sel!=-1){
-                
+                //Calcula la cantidad de asientos 
                 var cat = parseInt($("#h_nro_asiento_ocupado").val()) + parseInt($("#h_nro_asiento_reservado").val());               
                 var d2 = d.split('@');
                 
@@ -91,7 +34,7 @@
                     var d3 = d2[i].split('|');
                     var ca = parseInt(d3[4]); // cantidad de asiento que posee el vehiculo seleccionado 
                     if(cat<=ca){
-                        if(d3[0]==patente_sel){
+                        if(d3[0]==patente_sel){ //MUESTRA LOS DATOS EN LOS CAMPOS
                             $('#sp_patente').      html(d3[0]);
                             $('#sp_nombre').       html(d3[1]);
                             $('#sp_interno').      html(d3[2]);
@@ -130,7 +73,7 @@
             } 
         }else{
             
-            // Se selecciono la opcion de no vehiculo.
+            // Se selecciono la opcion de no vehiculo,option seleccione un vehiculo 
             
            $('#sp_patente').      html('');
            $('#sp_nombre').       html('');
@@ -152,11 +95,71 @@
             
         }
     }
+        // Guarda el id del vehiculo para agregarlo en el viaje
+        function seleccionar_vehiculo(){
+            //al campo patente sel le asigna el patente $('#sp_patente').html()
+           $('#sp_patente_sel').      html($('#sp_patente').html());
+           $('#sp_nombre_sel').       html($('#sp_nombre').html());
+           $('#sp_interno_sel').      html($('#sp_interno').html());
+           $('#sp_modelo_sel').       html($('#sp_modelo').html());
+           $('#sp_nro_asientos_sel').  html($('#sp_nro_asientos').html());
+           $('#sp_fecha_tecnica_sel').html($('#sp_fecha_tecnica').html());                                                        
+        }        
+        // 
+        function deseleccionar_vehiculo(){
+           $('#sp_patente_sel').      html('');
+           $('#sp_nombre_sel').       html('');
+           $('#sp_interno_sel').      html('');
+           $('#sp_modelo_sel').       html('');
+           $('#sp_nro_asientos_sel').  html('');
+           $('#sp_fecha_tecnica_sel').html('');                                                        
+        }
+        //----------------------------------------------------------------------
+        // BOTON Acepta.TIENE QUE ESTAR EL LADO DERECHO LLENO Graba la asociacion de viaje con el vehiculo 
+        //----------------------------------------------------------------------
+        function aceptar_vehiculos(){             
+             var aux = '';
+             aux = $("#sp_patente_sel").html();
+             
+             // verificamos que halla seleccionado un vehiculo lado derecho patente sel
+             // el ajax php lo hace es MODIFICAR LA TABLA VIAJES con el id viaje y le guarda la patente del vehiculo
+                if (aux!=""){
+                    var parametros = {
+                           code : $('#sp_patente_sel').html(),
+                           nro_v: $('#h_id_viaje').val()
+                                     };                                                   
+                    $.ajax({
+                           data: parametros,
+                           url : 'ajax_seleccionar_vehiculo.php',
+                           type: 'post',
+                           
+                           beforeSend: function () {
+                               //$("#t_buscar").html("Procesando, espere por favor...");
+                                                   },
+                                                  
+                           error: function (resultado){
+                               alert('Error en el procesamiento de la rutina ajax_seleccionar_vehiculo');
+                                                      },                                                                           
+                                                       
+                           success: function (resultado){
+                                    alert("Se asocio correctamente el vehiculo...");
+                                      window.close();
+                                                        }                           
+                    });                    
+                }else{
+                    alert("Debe seleccionar un vehículo...");
+                }
+             
+        }
+        function cancelar_vehiculos(){
+           window.close();
+        }
+      
         
     </script>
     
     <body>
-        <!-- -->
+        <!--v_datos_vehiculos tiene todos los vehiculos @ y los datos de estos separados por | -->
         <input  type="hidden" id="h_datos_vehiculos" value="{v_datos_vehiculos}"/> 
         <input  type="hidden" id="h_id_viaje" value="{v_id_viaje}"/> 
         
@@ -182,11 +185,11 @@
                             <tr>
                                 <td colspan="2">
                                     Vehículo:<select size="1" id="e_seleccion_vehiculo"> 
-                                    {v_vehiculo} 
+                                    {v_vehiculo} <!-- v_vehiculo le da $datos del php que tiene la patente del vehiculo -->
                                     </select>                                    
                                 </td>
                             </tr>
-                            <tr>
+                            <tr><!--v_patente tiene lo que le asocio el php que es la patente del vehiculo -->
                                 <td>Patente:      </td><td> <span id='sp_patente'>{v_patente}</span> </td>
                             </tr><tr>                            
                                 <td>Nombre:       </td><td> <span id='sp_nombre'>{v_nombre}</span></td>                                

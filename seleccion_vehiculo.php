@@ -6,16 +6,24 @@ include_once("funciones.php");
 
 $db = conectar_al_servidor();
 
-// parametros recibidos desde el javascript 
+//SOLO SELECCIONA UN VEHICULO Y MUESTRA LOS DATOS  de un vehiculo nuevo o el que trae del admin
+//
+// parametros recibidos desde el javascript de alta pasajes. html
+// 
+// 'seleccion_vehiculo.php?code='+$('#h_id_vehiculo').val()+'&id_v='+$('#h_id_viaje').val()+'&c_ao='+
+// $('#h_nro_asiento_ocupado').val()+'&c_ar='+$('#h_nro_asiento_reservado').val()+
+// '&destino='+$('#h_destino').val()+'&fecha='+$('#e_fecha').val()+'&hora='+$('#h_hora_salida').val()
+
 $id_vehiculo = $_REQUEST["code"]; // patente del vehiculo seleccionado.
-$id_viaje    = $_REQUEST["id_v"]; // clave unica del viaje seleccionado para agregar el vehiculo.
 $c_ao    = $_REQUEST["c_ao"]; // cantidad de asientos ocupados
 $c_ar    = $_REQUEST["c_ar"]; // cantidad de asientos reservados
+
+$id_viaje    = $_REQUEST["id_v"]; // clave unica del viaje seleccionado para agregar el vehiculo.
 $destino    = $_REQUEST["destino"]; // cantidad de asientos reservados
 $fecha      = $_REQUEST["fecha"]; // fecha del viaje
 $hora      = $_REQUEST["hora"]; // hora del viaje
 
-// Consulta sql. Trae todos los vehiculos cargados al sistema que se encuentran con activos (campo activo = 'S')
+// Consulta sql. TRAE TODOS LOS VEHICULOS cargados al sistema que se encuentran con activos (campo activo = 'S')
 $sql = "SELECT v.PATENTE, v.NOMBRE, v.INTERNO, v.MODELO, v.NRO_ASIENTOS, v.FECHA_VENCIMIENTO_TECNICA, 
             v.COLUMNA_PB_11, v.COLUMNA_PB_12, v.COLUMNA_CENTRAL_PB, v.COLUMNA_PB_21, v.COLUMNA_PB_22,  
             v.COLUMNA_PA_11, v.COLUMNA_PA_12, v.COLUMNA_CENTRAL_PA, v.COLUMNA_PA_21, v.COLUMNA_PA_22, v.DOBLE_PISO  
@@ -59,7 +67,8 @@ if (!$res){
     if ($id_vehiculo==0){
        $datos =  "<option value=-1 selected=True >Seleccione un vehiculo</option>";
     }
-    while (!$res->EOF){        
+    while (!$res->EOF){        //recorre el listado de vehiculos que trae de la BD y 
+    //muestra los datos del vehiculo seleccionado $res->fields[1]
         if ($id_vehiculo==$res->fields[0]){ 
             $datos = $datos."<option value=".$res->fields[0]." selected=True >".$res->fields[1]."</option>";
             
@@ -96,7 +105,8 @@ if (!$res){
                 $imagen10='./imagenes/sinasientos.jpg';                
             }
             
-        }else{                   
+        }else{       //si no selecciono un vehiculo le despliega el listado option con patente - modelo del vehiculo
+            
             $datos = $datos . "<option value=".$res->fields[0].">".$res->fields[1]."</option>";
         }
         

@@ -1,0 +1,138 @@
+<!-- ---------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Objetivo: Listar los pasajes pagos
+Funcionalidad: Esta pantalla tiene como dato de entrada los datos cargados en las siguientes tablas.
+    Tablas: 
+Salida de la pantalla
+            Las salidas de esta pantalla es un listado de los pasajes pagos por imprimir o no.
+--------------------------------------------------------------------------------
+---------------------------------------------------------------------------- -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Listado de Pasajes Pagos...</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>   
+
+        <table>
+            <tr>
+                <td>
+                    <table border="1">
+                        <tr>
+                            <td>
+                                <img alt="logo" src="{v_path_logo}" id="logo" width="60" height="60" />         
+
+                            </td>
+                            <td align="left">
+                                <span><FONT SIZE=6><b>{v_razon_social}</b></FONT></span><br>
+                                <span><FONT SIZE=2><b>{v_direc_razon_social}</b></FONT></span><br>
+                                <span><FONT SIZE=2><b>{v_tel_razon_social}</b></FONT></span>                                    
+                            </td>
+                        </tr>
+                    </table> 
+                </td>	
+            </tr>
+
+            <tr>
+                <td style="border: cornflowerblue" align="left">
+
+
+                    <table border="0" width="100%">
+                        <tr>
+                            <td align="left"  >
+                                Fecha:<b>{v_fecha}</b>
+                            </td>
+                            <td align="center" >
+                                Sucursal:<b>{v_sucursal}</b>
+                            </td>
+                            <td align="right">
+                                Usuario:<b>{v_vendedor}</b>
+                            </td>
+                            <td align="right">
+                                Localidad Origen:<b>{v_loc_or}</b>
+                            </td>
+                            <td align="right">
+                                Localidad Destino:<b>{v_loc_de}</b>
+                            </td>
+
+                            <td align="right">
+                                Tipo de Pasaje:<b>{v_tipo_pasaje}</b>
+                            </td>
+                            <td align="right">
+                                Forma de Pago:<b>{v_forma_pago}</b>
+                            </td>
+                            
+                        </tr>
+                    </table>   
+
+                </td>
+            </tr>
+            <!-- --------------------------------------------------------------------------- -->
+            <tr>   
+                <td colspan="3">        
+                    <!-- 
+                    *******************************************************************************
+                    **   Tablas de listados de los pasajes               **
+                    **            style=" display:{v_pasajes_pagos} "                                                               **
+                    **                                                                           **
+                    *****************************************************************************-->
+                    <table id="tabla_pasajes_pagos" width="90%" border="1"  >
+                        <tr>    
+                            <td align="center" colspan="10" >
+                                <br><b>Pasajes Pagos </b>
+                            </td>    
+                        </tr>  
+                        <tr>
+                            <td align="center">Nro. Pasaje     </td>
+                            <td align="center">Fecha  </td>
+                            <td align="center">Pasajero    </td>
+                            <td align="center">DNI Pasajero </td>
+                            <td align="center">Direcci&oacute;n Destino        </td>
+                            <td align="center">Pasajero Asegurado</td>
+                            <td align="center">DNI Pasajero Asegurado </td>
+                            <td align="center">Nro. Cheque</td> 
+                            <td align="center">Importe Cheque</td>
+                            <td align="center">Total </td>
+
+                        </tr>  
+
+
+                        <!-- BEGIN imprimir_resumenpasajes_pagos -->  
+                        <tr>   
+                            <td align="center">{v_nro_pasaje}</td>
+                            <td align="center"> {v_fecha}</td>
+                            <td align="center"> {v_pasajero}</td>
+                            <td align="center"> {v_dni_pas}</td>
+                            <td  align="center">{v_dir_d}</td>
+                            <td  align="center">{v_pasajero_seg}</td>
+                            <td align="center">{v_dni_pas_seg}</td>  
+                            <td align="center">{v_nro_ch}</td>
+                            <td align="center">{v_importe_ch}</td>
+                            <td align="center">{v_total}</td>
+
+
+                        </tr>
+
+            <!-- END imprimir_resumenpasajes_pagos -->        
+
+
+        </table>
+    </td>      
+</tr>
+
+
+</table>
+
+
+
+<table style="border: cornflowerblue" align="left" border="0" width="100%">
+<tr>
+    <td> Total Pagado de este listado:${v_total_listado} </td>
+    <td> Cantidad total de pasajes:{v_cant_total}    </td>            
+</tr>
+</table>
+
+</body>
+</html>

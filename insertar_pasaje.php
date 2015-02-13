@@ -27,7 +27,7 @@ include_once("funciones.php");
 $lista_pasaje          = $_REQUEST['datos']; 
 $forma_salida          = $_REQUEST['fv'];
 $id_viaje              = $_REQUEST['id_viaje'];
-$tipo                  = $_REQUEST['tipo'];
+$tipo                  = $_REQUEST['tipo'];//v o r
 $detalle_pagos         = $_REQUEST["e_pagos"]; // Detalle de pago de la encomienda.
 $destinos_comun        = $_REQUEST["e_destinos_comun"]; // Detalle del destino.
 $usuario               = $_SESSION['usuario'];
