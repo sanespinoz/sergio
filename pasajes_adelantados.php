@@ -21,7 +21,7 @@ $res = ejecutar_sql($db, $q);
 if (!$res) {
 echo $db->ErrorMsg(); //die();
 } else {
-    $combobox_tipo_pasaje = "<optionvalue=0>Seleccione uno...</option>";
+    $combobox_tipo_pasaje = "<option value=0>Seleccione uno...</option>";
     $tipo_pasaje_operaciones=[];
 while (!$res->EOF) {//r$res->fields[2] vendria a ser campo_interno , $res->fields[1]  seria tipo_pasaje-$:precio
          $combobox_tipo_pasaje =  $combobox_tipo_pasaje ."<option value=".$res->fields[2].">".$res->fields[1]."</option>";

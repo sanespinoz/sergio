@@ -6,7 +6,7 @@ include_once("template.php");
 include_once("funciones.php");
 /*
                             f_d    : $("#e_fecha_desde").val(),
-                           f_h    : $("#e_fecha_hasta").val(),                           
+                                            
                            id_cli : $("#h_id_cliente").val(),
                            observ : $("#e_observaciones").val(),
                            cant   : $("#e_cantidad").val(),
@@ -15,7 +15,7 @@ include_once("funciones.php");
                            tipo_pas :$("#e_tipo_pasaje option:selected").attr('value')     
 */
 $f_d        = $_POST["f_d"];
-$f_h        = $_POST["f_h"];
+
 $id_cliente = $_POST["id_cli"];
 $total      = $_POST["total"];
 $cant       = $_POST["cant"];

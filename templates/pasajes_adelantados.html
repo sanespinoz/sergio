@@ -164,7 +164,7 @@
         // Escribe la tabla de pasajes adelantados
         //----------------------------------------------------------------------
         function escribir_pasajes_adelantados(){
-            if(validar_carga_pasaje()){
+           /* if(validar_carga_pasaje()){
               // if (confirm("Desea crear los pasajes?")){
                 swal({   title: "Desea crear los pasajes?",  
                       
@@ -204,11 +204,17 @@
                                                           
                         
                     });                              
-                    }); 
+                    }); */
                    
-                }
-            //}
-           
+              $f_d = $("#e_fecha_desde").val();
+                           $f_h    = $("#e_fecha_hasta").val();                          
+                           $id_cli = $("#h_id_cliente").val();
+                           $observ = $("#e_observaciones").val();
+                           $cant   = $("#e_cantidad").val();
+                           $total  = $("#e_mostrar_pago").val();
+             abrir_ventana('Pagar pasajes Adelantados'  ,'pagar_pasaje.php?llamado_por=1'+'&fdesde='+ f_d+ '&fhasta='+ f_h + '&id_cliente'+ id_cli + '&observacion'+ observ + '&c'+ cant+ '&valor' +total ,  400,600);
+           debugger;
+        }
        }
         //----------------------------------------------------------------------
         // obtenemos el precio del tipo de pasaje seleccionado y lo multiplicamos 
