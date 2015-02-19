@@ -4,64 +4,49 @@ include_once("seguridad.php");
 include_once("conexion.php");
 include_once("template.php");
 include_once("funciones.php");
-/*
-                            f_d    : $("#e_fecha_desde").val(),
-                           f_h    : $("#e_fecha_hasta").val(),                           
-                           id_cli : $("#h_id_cliente").val(),
-                           observ : $("#e_observaciones").val(),
-                           cant   : $("#e_cantidad").val(),
-                           total  : $("#e_mostrar_pago").val(),
-                           raz : $("#e_nombre_pasaje").val(),
-                           tipo_pas :$("#e_tipo_pasaje option:selected").attr('value')     
+
+/*    
+ * 'pagar_pasaje.php?llamado_por=1'+'&fdesde='+ f_d + '&id_cliente='+ id_cli + '&observacion='+ observ + '&c='+ cant +'&deuda=' + deu + '&importe_pasaje=' + importe + '&t_pasaje'+ tipo_pas + '&razon' + raz ,  400,600);
+           debugger;
 */
-$f_d        = $_POST["f_d"];
-$f_h        = $_POST["f_h"];
-$id_cliente = $_POST["id_cli"];
-$total      = $_POST["total"];
-$cant       = $_POST["cant"];
-$observ     = $_POST["observ"];
-$tipo_pas    = $_POST["tipo_pas"];
-$razon      = $_POST["raz"];
+$f_d                 = $_REQUEST["fdesde"];
+$llamado             =  $_REQUEST["llamado_por"]; //viene un 1 para pasaje adelantado y si es 2 es pasajes
+$id_cliente          = $_REQUEST["id_cliente"];
+$cant                = $_REQUEST["c"];
+$observ              = $_REQUEST["observacion"];
+$tipo_pasa           = $_REQUEST["t_pasaje"];
+$razon_s             = $_REQUEST["razon"];
 
-$mifecha = explode('/','/'.$f_d);
-$fecha_desde = $mifecha[3]."-".$mifecha[1]."-".$mifecha[2];
-
-$mifechah = explode('/','/'.$f_h);
-$fecha_hasta = $mifechah[3]."-".$mifechah[1]."-".$mifechah[2];
-$est= 'S';
 // parametros recibidos desde el javascript 
-/*$nro_asiento             = $_REQUEST["code"]; // Nro de asiento.
+$nro_asiento             = $_REQUEST["code"]; // Nro de asiento.
 $id_viaje                = $_REQUEST["id_v"]; // clave unica del viaje seleccionado para agregar el vehiculo.
-$deuda                   = $_REQUEST["deuda"]; // importe de la deuda de la reserva
-$importe_pasaje          = $_REQUEST["importe_pasaje"]; // importe de la deuda de la reserva
+$deuda                   = $_REQUEST["deuda"]; // importe de la deuda de la reserva o pasajes adelantados
+$importe_pasaje          = $_REQUEST["importe_pasaje"]; // importe de la deuda de la reserva o pasajes adelantados
 $importe_coseguro_pasaje = $_REQUEST["importe_coseguro"];
 $destino                 = $_REQUEST["destino"]; // cantidad de asientos reservados
 $fecha                   = $_REQUEST["fecha"]; // fecha del viaje
 $hora                    = $_REQUEST["hora"];   // hora del viaje     
-$nro_pasaje              = $_REQUEST["nro_pasaje"]."-";   // hora del viaje     
-
-$id_pasaje = explode('-', $nro_pasaje)[1];     
+$nro_pasaje              = $_REQUEST["nro_pasaje"]."-";   // hora del viaje   
 
 
+
+
+set_var('v_llamado', $llamado);//se lo pasa pasajes adelantados html en la variable llamado_por y lo pasa a al html en la var hidden v_llamado
 set_var('v_fecha_viaje', $fecha);
 set_var('v_hora_viaje', $hora);
-set_var("v_pasaje", $nro_pasaje);
-*/
-set_file("pagar_pasajead", "pagar_pasaje.html");
+set_var('v_pasaje', $nro_pasaje);
+set_var('v_destino', $destino);
+set_var('v_id_viaje', $id_viaje);
 
+set_var('v_id_cliente', $id_cliente);
+set_var('v_razon_soc', $razon_s); //NO ME LO MOSTRABA PORQUE TENIA COMILLAS DOBLE 
+set_var('v_fecha_desde', $f_d);
+set_var('v_tipo_pas', $tipo_pasa);
+
+set_var('v_observacion', $observ);
+set_var('v_cantidad', $cant);
 set_var('v_color_cabezera_columna', COLOR_ENCOMIENDAS_CABEZERA_COLUMNA);
 set_var('v_total_pago','0.00');
-
-set_var("v_deuda_pasaje",   "0.00"); 
-set_var("v_importe_pasaje", "0.00");
-set_var("v_importe_coseguro_pasaje","0.00");
-
-//set_var("v_destino", $destino);
-set_var('v_id_cliente', $id_cliente);
-set_var('v_razon_soc', $razon);
-set_var('v_fecha_desde', $f_d);
-set_var('v_fecha_hasta', $f_h);
-set_var('v_tipo_pas', $tipo_pas);
 
 set_var("v_color_cabezera_tabla",    COLOR_ENCOMIENDAS_CABEZERA_TABLA);
 set_var("v_color_cabezera_columna",  COLOR_ENCOMIENDAS_CABEZERA_COLUMNA);
@@ -70,19 +55,24 @@ set_var("v_color_mando_botonera_mando",'#4d4d4d');
 set_var("v_color_fondo_boton_mando",'#333');
 set_var("v_color_texto_boton_mando",'#fff');
 
-set_var("v_interes_tarjeta",0);
-set_var("v_id_tarjeta","");
-set_var("v_id_banco","");
+set_var('v_deuda_pasaje',   "0.00"); 
+set_var('v_importe_pasaje', "0.00");
+set_var('v_importe_coseguro_pasaje',"0.00");
 
-set_var("v_importe_con_interes_pago", $deuda);
+set_var('v_interes_tarjeta',0);
+set_var('v_id_tarjeta',"");
+set_var('v_id_banco',"");
 
-set_var("v_deuda_pasaje",   $deuda); 
-set_var("v_importe_pasaje", $deuda);
+set_var('v_importe_con_interes_pago', $deuda);
 
-//set_var("v_importe_coseguro_pasaje", $importe_coseguro_pasaje);
-set_var("v_cantidad_pasaje_reservados",$cant);
-set_var("v_id_pasaje",$id_pasaje);
+set_var('v_deuda_pasaje',   $deuda); 
+set_var('v_importe_pasaje', $deuda);
 
+set_var('v_importe_coseguro_pasaje', $importe_coseguro_pasaje);
+set_var('v_cantidad_pasaje_reservados', $cant);
+set_var('v_id_pasaje',$id_pasaje);
+
+set_file("pagar_pasaje", "pagar_pasaje.html");
 $db = conectar_al_servidor();
 
 //----------------------------------------------------------------------------------------------------
@@ -129,7 +119,7 @@ set_var("v_comboBox_banco", $combobox_bancos);
 //----------------------------------------------------------------------------------------------------
 // Cargamos el comboBOX de Cuentas de pasajes adelantados
 //----------------------------------------------------------------------------------------------------
-/*$q = "SELECT pa.codigo, pa.cantidad, pa.fecha_vensimiento, cl.dni, cl.razon_social
+$q = "SELECT pa.codigo, pa.cantidad,pa.tipo_pas, cl.dni, cl.razon_social
       FROM pasajes_adelantados AS pa
       INNER JOIN clientes AS cl ON pa.id_cliente = cl.codigo
       ORDER BY cl.razon_social ASC ";
@@ -144,9 +134,9 @@ if (!$res) {
     }
 }
 set_var("v_comboBox_cuenta", $combobox_cuenta);
-*/
-parse ('pagar_pasajead');
-pparse('pagar_pasajead');
+
+parse ('pagar_pasaje');
+pparse('pagar_pasaje');
 
 desconectar($db);
 

@@ -22,6 +22,17 @@
     $(document).ready(function(){   
                 asociar_calendario("#e_cheque_fecha_emision");
                 asociar_calendario("#e_cheque_fecha_cobro");
+                
+             //---------------------------------------------------------------------------------------------------
+                //---Para que se ponga el encabezado si llamado es 1 es para el pago de pasajes adelantados
+                //---------------------------------------------------------------------------------------------------
+                 if ( $("#h_llamado").val()==1){
+                     $("#div_pago_a").attr('style',"display: block");
+                $("#div_pago_r").attr('style',"display: none");
+            }else{
+                 $("#div_pago_a").attr('style',"display: none");
+                $("#div_pago_r").attr('style',"display: block");
+            }
                 //---------------------------------------------------------------------------------------------------
                 //----------------  botones en forma des pagos  -----------------------------------------------------
                 //---------------------------------------------------------------------------------------------------
@@ -108,8 +119,7 @@
         //----------------------------------------------------------------------------
         //----------------------------------------------------------------------------
         //----------------------------------------------------------------------------
-        
-        // llama a insertar_pagos.php por ajax
+  // llama a insertar_pagos.php por ajax
         function aceptar_pagos(){
                 // verificamos que se halla seleccionado el tipo de pasaje y su 
                 // importe correspondiente.
@@ -130,15 +140,20 @@
                    });                   
                    // ----------------------------------------------------------
                    
-           
-                   
-                   
                    var parametros = {
                                 id_viaje         : $("#h_id_viaje").val(),
                                 id               : $("#h_id_pasaje").val(),
-                                tipo             : 0, // indica que se esta pagando un pasaje reservado.
-                                e_pagos          : pagos // datos del pago
+                                tipo             : 1, //MANDO TIPO 1 PARA PASAJES ADELANTADOS
+                                e_pagos          : pagos, // datos del pago
+                                
+                                id_cliente       : $("#h_id_cliente").val(),
+                                f_desde          : $("#h_fecha_d").val(),
+                                cantidad         : $("#h_cantidad").val(),
+                                observ           : $("#h_observacion").val(),
+                                tipo_pasaje      : $("#h_tipo_pas").val(),
+                                razon_s          : $("#h_razon_soc").val()
                                      }; 
+                               // alert( $("#h_observacion").val() );
 
                     $.ajax({
                            data: parametros,
@@ -162,8 +177,7 @@
                     alert("Debe realizar almenos un pago...");
                 }
         }
-        
-        
+  
     //-----------------------------------------------------------------------------------------    
     // realizamos la sumatoria de factores que hacen al calculo de un precio de pasaje a pagar.
     //-----------------------------------------------------------------------------------------
@@ -178,9 +192,10 @@
             i_c  = parseFloat($("#h_importe_coseguro_pasaje").val());
             i_p  = parseFloat($("#h_importe_pasaje").val());
             
-//            debugger
+ 
 
             i_pg = parseFloat($("#h_total_pago").val());
+             debugger;
 //            i_pg = parseFloat($("#sp_total_pago").html());
             
 //            if(i_pg<(i_c+i_p)){
@@ -219,7 +234,7 @@
             $("#e_importe_pago"            ).val(i_c.toFixed(2)      );
             $("#e_importe_con_interes_pago").val( res.toFixed(2)     );
             
-        };
+        }
         
         function seleccionar_forma_de_pagos(){   
            
@@ -500,6 +515,7 @@
                             a1 = parseFloat($("#e_importe_con_interes_pago").val());   
                             a2 = parseFloat($("#h_total_pago").val());
                             a3 = a1 + a2;
+                            
                     
                             //agregamos la nueva fila a la tabla
                             $(objTabla).find('#cuerpo_detalle_pagos').append(strNueva_Fila);
@@ -735,12 +751,10 @@
 <!-- Scrip para las pantallas desplegables -->       
 <script type='text/javascript' src='./js/jquery.simplemodal.js'></script>
 <script type='text/javascript' src='./js/osx.js'></script>             
- 
-
 
     <body>
-<input id="h_llamado"          type="hidden" value="{v_llamado}" />
-        <input id="h_importe_pasaje"          type="hidden" value="{v_importe_pasaje}" />
+        <input id="h_llamado"          type="hidden" value="{v_llamado}" />
+        <input id="h_importe_pasaje"          type="hidden" value="{v_importe_pasaje}" /><!-- le pasa $deuda del php-->
         <input id="h_deuda_pasaje"            type="hidden" value="{v_deuda_pasaje}"   />
         <input id="h_importe_coseguro_pasaje" type="hidden" value="{v_importe_coseguro_pasaje}"   />
         <input id="h_seleccion"               type="hidden" value="0"/> <!-- Guarda la informacion del cliente buscado con el div de busqueda -->    
@@ -749,13 +763,29 @@
         <input id="h_id_tarjeta"              type="hidden" value="{v_id_tarjeta}" /> 
         <input id="h_id_banco"                type="hidden" value="{v_id_banco}"/>
         <input id="h_id_pasaje"               type="hidden" value="{v_id_pasaje}"/>
-        
+        <input id="h_fecha_d"               type="hidden" value="{v_fecha_desde}"/>
+        <input id="h_id_cliente"               type="hidden" value="{v_id_cliente}"/>
+        <input id="h_cantidad"               type="hidden" value="{v_cantidad}"/>
+        <input id="h_observacion"               type="hidden" value="{v_observacion}"/>
+         <input id="h_tipo_pas"               type="hidden" value="{v_tipo_pas}"/>
+         <input id="h_razon_soc"               type="hidden" value="{v_razon_soc}"/>
+         
         <div id="pagos" align="center">
              <table id='selelccion_vehiculo' style="width: 650px" border="1"  align="center" cellspacing="0" bordercolor="#DCDCDC">
-                    <tr>
+                    <tr> 
                         <td  colspan="9" align='center' bgcolor="{v_color_cabezera_tabla}">
-                            Pago del pasaje nro :<b>{v_pasaje}</b> para la salida con destino a:<b>{v_destino}</b> en la fecha:<b>{v_fecha_viaje}</b> con hora de salida:<b>{v_hora_viaje}</b>.
-                        </td>
+                            
+                            <div id="div_pago_a" style="display: none">              
+                                   Pago <b>{v_cantidad_pasaje_reservados}</b> pasajes, para el cliente:<b> {v_id_cliente}</b> Razón Social:<b> {v_razon_soc}</b> desde la fecha :<b>{v_fecha_desde}</b>
+                          Pasaje tipo: <b>{v_tipo_pas}</b>
+                                </div>                                    
+                                <div id="div_pago_r" style="display: none">         
+                             Pago del pasaje nro :<b>{v_pasaje}</b> para la salida con destino a:<b>{v_destino}</b> en la fecha:<b>{v_fecha_viaje}</b> con hora de salida:<b>{v_hora_viaje}</b>
+                            
+                             </div> 
+                            
+                            
+    </td>
                     </tr>
                 
                     <tr>
